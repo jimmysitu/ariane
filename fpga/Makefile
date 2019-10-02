@@ -5,12 +5,16 @@ work-dir := work-fpga
 bit := $(work-dir)/ariane_xilinx.bit
 mcs := $(work-dir)/ariane_xilinx.mcs
 ip-dir := xilinx
-ips := xlnx_axi_clock_converter.xci  \
-       xlnx_axi_dwidth_converter.xci \
-       xlnx_axi_quad_spi.xci         \
-       xlnx_axi_gpio.xci             \
-       xlnx_clk_gen.xci              \
-       xlnx_mig_7_ddr3.xci
+ifeq ($(BOARD), miz701n)
+	ips := xlnx_ps_7.xci
+else ifeq ($(BOARD), genesys2)
+	ips := 	xlnx_axi_clock_converter.xci  \
+			xlnx_axi_dwidth_converter.xci \
+			xlnx_axi_quad_spi.xci         \
+			xlnx_axi_gpio.xci             \
+			xlnx_clk_gen.xci              \
+			xlnx_mig_7_ddr3.xci
+endif
 
 ips := $(addprefix $(work-dir)/, $(ips))
 ips-target := $(join $(addsuffix /ip/, $(addprefix $(ip-dir)/, $(basename $(ips)))), $(ips))

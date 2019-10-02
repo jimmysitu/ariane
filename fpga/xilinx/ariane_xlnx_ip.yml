@@ -90,3 +90,9 @@ xlnx_ila:
     max_wlast_to_awvalid_waits: 1024
     max_write_to_bvalid_waits: 1024
     max_continuous_rtransfers_waits: 1024
+
+xlnx_ps_7:
+  ip: processing_system7
+  vendor: xilinx.com
+  config:
+    TODO: FIXME

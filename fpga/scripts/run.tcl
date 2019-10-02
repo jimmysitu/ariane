@@ -15,16 +15,28 @@
 # Author: Florian Zaruba <zarubaf@iis.ee.ethz.ch>
 
 # hard-coded to Genesys 2 for the moment
-add_files -fileset constrs_1 -norecurse constraints/genesys-2.xdc
+if {$::env(BOARD) eq "genesys2"} {
+    add_files -fileset constrs_1 -norecurse constraints/genesys-2.xdc
+} elseif {$::env(BOARD) eq "miz701n"} {
+    add_files -fileset constrs_1 -norecurse constraints/miz701n.xdc
+} else {
+    exit 1
+}
 
-read_ip xilinx/xlnx_mig_7_ddr3/ip/xlnx_mig_7_ddr3.xci
-read_ip xilinx/xlnx_axi_clock_converter/ip/xlnx_axi_clock_converter.xci
-read_ip xilinx/xlnx_axi_dwidth_converter/ip/xlnx_axi_dwidth_converter.xci
-read_ip xilinx/xlnx_axi_gpio/ip/xlnx_axi_gpio.xci
-read_ip xilinx/xlnx_axi_quad_spi/ip/xlnx_axi_quad_spi.xci
-read_ip xilinx/xlnx_clk_gen/ip/xlnx_clk_gen.xci
-# read_ip xilinx/xlnx_protocol_checker/ip/xlnx_protocol_checker.xci
 
+if {$::env(BOARD) eq "genesys2"} {
+    read_ip xilinx/xlnx_mig_7_ddr3/ip/xlnx_mig_7_ddr3.xci
+    read_ip xilinx/xlnx_axi_clock_converter/ip/xlnx_axi_clock_converter.xci
+    read_ip xilinx/xlnx_axi_dwidth_converter/ip/xlnx_axi_dwidth_converter.xci
+    read_ip xilinx/xlnx_axi_gpio/ip/xlnx_axi_gpio.xci
+    read_ip xilinx/xlnx_axi_quad_spi/ip/xlnx_axi_quad_spi.xci
+    read_ip xilinx/xlnx_clk_gen/ip/xlnx_clk_gen.xci
+    # read_ip xilinx/xlnx_protocol_checker/ip/xlnx_protocol_checker.xci
+} elseif {$::env(BOARD) eq "miz701n"} {
+    read_ip xilinx/xlnx_ps_7/ip/xlnx_ps_7.xci
+} else {
+    exit 1
+}
 set_property include_dirs { "src/axi_sd_bridge/include" "../src/common_cells/include" } [current_fileset]
 
 source scripts/add_sources.tcl
@@ -34,6 +46,10 @@ set_property top ${project}_xilinx [current_fileset]
 if {$::env(BOARD) eq "genesys2"} {
     read_verilog -sv {src/genesysii.svh ../src/common_cells/include/common_cells/registers.svh}
     set file "src/genesysii.svh"
+    set registers "../src/common_cells/include/common_cells/registers.svh"
+} elseif {$::env(BOARD) eq "miz701n"} {
+    read_verilog -sv {src/miz701n.svh ../src/common_cells/include/common_cells/registers.svh}
+    set file "src/miz701n.svh"
     set registers "../src/common_cells/include/common_cells/registers.svh"
 } else {
     exit 1
