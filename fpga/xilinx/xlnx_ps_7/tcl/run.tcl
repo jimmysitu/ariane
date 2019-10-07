@@ -12,7 +12,13 @@ set_property -dict [list  \
             CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {50}            \
             CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41K256M16 RE-125}  \
             CONFIG.PCW_USE_FABRIC_INTERRUPT {1}             \
-            CONFIG.PCW_IRQ_F2P_INTR {1}                     \
+            CONFIG.PCW_P2F_QSPI_INTR {1}                    \
+            CONFIG.PCW_P2F_ENET0_INTR {1}                   \
+            CONFIG.PCW_P2F_USB0_INTR {1}                    \
+            CONFIG.PCW_P2F_SDIO0_INTR {1}                   \
+            CONFIG.PCW_P2F_SDIO1_INTR {1}                   \
+            CONFIG.PCW_P2F_UART1_INTR {1}                   \
+            CONFIG.PCW_P2F_GPIO_INTR {1}                    \
             CONFIG.PCW_PRESET_BANK0_VOLTAGE {LVCMOS 3.3V}   \
             CONFIG.PCW_QSPI_PERIPHERAL_ENABLE {1}           \
             CONFIG.PCW_QSPI_GRP_SINGLE_SS_ENABLE {1}        \

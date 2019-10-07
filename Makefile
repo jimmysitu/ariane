@@ -194,7 +194,7 @@ src := $(addprefix $(root-dir), $(src))
 uart_src := $(wildcard fpga/src/apb_uart/src/*.vhd)
 uart_src := $(addprefix $(root-dir), $(uart_src))
 
-fpga_src :=  $(wildcard fpga/src/*.sv) $(wildcard fpga/src/bootrom/*.sv) $(wildcard fpga/src/ariane-ethernet/*.sv)
+fpga_src := $(wildcard fpga/src/*.sv) $(wildcard fpga/src/bootrom/*.sv) $(wildcard fpga/src/ariane-ethernet/*.sv)
 fpga_src := $(addprefix $(root-dir), $(fpga_src))
 
 # look for testbenches
@@ -505,8 +505,8 @@ fpga_filter += $(addprefix $(root-dir), src/util/instr_tracer.sv)
 
 fpga: $(ariane_pkg) $(util) $(src) $(fpga_src) $(uart_src)
 	@echo "[FPGA] Generate sources"
-	@echo read_vhdl        {$(uart_src)}    > fpga/scripts/add_sources.tcl
-	@echo read_verilog -sv {$(ariane_pkg)} >> fpga/scripts/add_sources.tcl
+	@echo read_verilog -sv {$(ariane_pkg)} > fpga/scripts/add_sources.tcl
+	@echo read_vhdl        {$(uart_src)}   >> fpga/scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(util))}     >> fpga/scripts/add_sources.tcl
 	@echo read_verilog -sv {$(filter-out $(fpga_filter), $(src))} 	   >> fpga/scripts/add_sources.tcl
 	@echo read_verilog -sv {$(fpga_src)}   >> fpga/scripts/add_sources.tcl

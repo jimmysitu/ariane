@@ -41,13 +41,14 @@ set_property include_dirs { "src/axi_sd_bridge/include" "../src/common_cells/inc
 
 source scripts/add_sources.tcl
 
-set_property top ${project}_xilinx [current_fileset]
 
 if {$::env(BOARD) eq "genesys2"} {
+    set_property top ${project}_xilinx [current_fileset]
     read_verilog -sv {src/genesysii.svh ../src/common_cells/include/common_cells/registers.svh}
     set file "src/genesysii.svh"
     set registers "../src/common_cells/include/common_cells/registers.svh"
 } elseif {$::env(BOARD) eq "miz701n"} {
+    set_property top ${project}_zynq [current_fileset]
     read_verilog -sv {src/miz701n.svh ../src/common_cells/include/common_cells/registers.svh}
     set file "src/miz701n.svh"
     set registers "../src/common_cells/include/common_cells/registers.svh"
@@ -55,7 +56,7 @@ if {$::env(BOARD) eq "genesys2"} {
     exit 1
 }
 
-set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file" "*$registers"]]
+set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file" "*/$registers"]]
 set_property -dict { file_type {Verilog Header} is_global_include 1} -objects $file_obj
 
 update_compile_order -fileset sources_1
