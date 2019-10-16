@@ -8,83 +8,11 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-// Description: Xilinx FPGA top-level
-// Author: Florian Zaruba <zarubaf@iis.ee.ethz.ch>
+// Description: Xilinx ZYNQ top-level
+// Author: Jimmy Situ <web@jimmystone.cn>
 
-`ifdef ZYNQ
-`include ariane_zynq.sv
-`else
-module ariane_xilinx (
-`ifdef GENESYSII
-  input  logic         sys_clk_p   ,
-  input  logic         sys_clk_n   ,
-  input  logic         cpu_resetn  ,
-  inout  wire  [31:0]  ddr3_dq     ,
-  inout  wire  [ 3:0]  ddr3_dqs_n  ,
-  inout  wire  [ 3:0]  ddr3_dqs_p  ,
-  output logic [14:0]  ddr3_addr   ,
-  output logic [ 2:0]  ddr3_ba     ,
-  output logic         ddr3_ras_n  ,
-  output logic         ddr3_cas_n  ,
-  output logic         ddr3_we_n   ,
-  output logic         ddr3_reset_n,
-  output logic [ 0:0]  ddr3_ck_p   ,
-  output logic [ 0:0]  ddr3_ck_n   ,
-  output logic [ 0:0]  ddr3_cke    ,
-  output logic [ 0:0]  ddr3_cs_n   ,
-  output logic [ 3:0]  ddr3_dm     ,
-  output logic [ 0:0]  ddr3_odt    ,
-  output wire          eth_rst_n   ,
-  input  wire          eth_rxck    ,
-  input  wire          eth_rxctl   ,
-  input  wire [3:0]    eth_rxd     ,
-  output wire          eth_txck    ,
-  output wire          eth_txctl   ,
-  output wire [3:0]    eth_txd     ,
-  inout  wire          eth_mdio    ,
-  output logic         eth_mdc     ,
-  output logic [ 7:0]  led         ,
-  input  logic [ 7:0]  sw          ,
-  output logic         fan_pwm     ,
-`elsif VCU118
-  input  wire          c0_sys_clk_p    ,  // 250 MHz Clock for DDR
-  input  wire          c0_sys_clk_n    ,  // 250 MHz Clock for DDR
-  input  wire          sys_clk_p       ,  // 100 MHz Clock for PCIe
-  input  wire          sys_clk_n       ,  // 100 MHz Clock for PCIE
-  input  wire          sys_rst_n       ,  // PCIe Reset
-  input  logic         cpu_reset       ,  // CPU subsystem reset
-  output wire [16:0]   c0_ddr4_adr     ,
-  output wire [1:0]    c0_ddr4_ba      ,
-  output wire [0:0]    c0_ddr4_cke     ,
-  output wire [0:0]    c0_ddr4_cs_n    ,
-  inout  wire [7:0]    c0_ddr4_dm_dbi_n,
-  inout  wire [63:0]   c0_ddr4_dq      ,
-  inout  wire [7:0]    c0_ddr4_dqs_c   ,
-  inout  wire [7:0]    c0_ddr4_dqs_t   ,
-  output wire [0:0]    c0_ddr4_odt     ,
-  output wire [0:0]    c0_ddr4_bg      ,
-  output wire          c0_ddr4_reset_n ,
-  output wire          c0_ddr4_act_n   ,
-  output wire [0:0]    c0_ddr4_ck_c    ,
-  output wire [0:0]    c0_ddr4_ck_t    ,
-  output wire [7:0]    pci_exp_txp     ,
-  output wire [7:0]    pci_exp_txn     ,
-  input  wire [7:0]    pci_exp_rxp     ,
-  input  wire [7:0]    pci_exp_rxn     ,
-`endif
-  // SPI
-  output logic        spi_mosi    ,
-  input  logic        spi_miso    ,
-  output logic        spi_ss      ,
-  output logic        spi_clk_o   ,
-  // common part
-  input  logic        tck         ,
-  input  logic        tms         ,
-  input  logic        trst_n      ,
-  input  logic        tdi         ,
-  output wire         tdo         ,
-  input  logic        rx          ,
-  output logic        tx
+module ariane_zynq (
+    /*AUTOARG*/
 );
 // 24 MByte in 8 byte words
 localparam NumWords = (24 * 1024 * 1024) / 8;

@@ -23,6 +23,7 @@ package ariane_soc;
   localparam IdWidth   = 4;
   localparam IdWidthSlave = IdWidth + $clog2(NrSlaves);
 
+`ifndef ZYNQ
   typedef enum int unsigned {
     DRAM     = 0,
     GPIO     = 1,
@@ -34,7 +35,16 @@ package ariane_soc;
     ROM      = 7,
     Debug    = 8
   } axi_slaves_t;
-
+`else
+  typedef enum int unsigned {
+    DRAM     = 0,
+    PS8      = 1
+    PLIC     = 2,
+    CLINT    = 3,
+    ROM      = 4,
+    Debug    = 5
+  } axi_slaves_t;
+`endif
   localparam NB_PERIPHERALS = Debug + 1;
 
 
