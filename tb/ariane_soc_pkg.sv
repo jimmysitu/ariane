@@ -38,7 +38,9 @@ package ariane_soc;
 `else
   typedef enum int unsigned {
     DRAM     = 0,
-    PS8      = 1
+    PS7      = 1
+    GPIO     = 1,
+    UART     = 4,
     PLIC     = 2,
     CLINT    = 3,
     ROM      = 4,
@@ -48,6 +50,7 @@ package ariane_soc;
   localparam NB_PERIPHERALS = Debug + 1;
 
 
+`ifndef ZYNQ
   localparam logic[63:0] DebugLength    = 64'h1000;
   localparam logic[63:0] ROMLength      = 64'h10000;
   localparam logic[63:0] CLINTLength    = 64'hC0000;
@@ -72,7 +75,29 @@ package ariane_soc;
     GPIOBase     = 64'h4000_0000,
     DRAMBase     = 64'h8000_0000
   } soc_bus_start_t;
-
+`else
+  localparam logic[63:0] DebugLength    = 64'h1000;
+  localparam logic[63:0] ROMLength      = 64'h10000;
+  localparam logic[63:0] CLINTLength    = 64'hC0000;
+  localparam logic[63:0] PLICLength     = 64'h3FF_FFFF;
+  localparam logic[63:0] DRAMLength     = 64'h30000000; // S_AXI_HP0: 1GByte of DDR3 on PS7 DDR
+  localparam logic[63:0] UARTLength     = 64'h1000;
+  localparam logic[63:0] GPIOLength     = 64'h1000;
+  localparam logic[63:0] PS7Length      = 64'h1E000000; // S_AXI_GP0: IOP of PS7 + QSPI
+  // Instantiate AXI protocol checkers
+  localparam bit GenProtocolChecker = 1'b0;
+  
+  typedef enum logic [63:0] {
+    DebugBase    = 64'h0000_0000,
+    ROMBase      = 64'h0001_0000,
+    CLINTBase    = 64'h0200_0000,
+    PLICBase     = 64'h0C00_0000,
+    DRAMBase     = 64'h1000_0000
+    UARTBase     = 64'hC000_0000,
+    GPIOBase     = 64'hC100_0000,
+    PS7Base      = 64'hE000_0000
+  } soc_bus_start_t;
+`endif
   localparam NrRegion = 1;
   localparam logic [NrRegion-1:0][NB_PERIPHERALS-1:0] ValidRule = {{NrRegion * NB_PERIPHERALS}{1'b1}};
 
