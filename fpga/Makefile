@@ -28,7 +28,11 @@ all: $(mcs)
 
 # Generate mcs from bitstream
 $(mcs): $(bit)
+ifeq ($(BOARD), miz701n)
+	echo "FIXME, ZYNQ need a FSBL flow here"
+else ifeq ($(BOARD), genesys2)
 	$(VIVADO) $(VIVADOFLAGS) -source scripts/write_cfgmem.tcl -tclargs $@ $^
+endif
 
 $(bit): $(ips)
 	mkdir -p $(work-dir)

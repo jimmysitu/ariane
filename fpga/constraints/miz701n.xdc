@@ -2,7 +2,7 @@
 set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports sys_resetn]
 
 # Clock
-#set_property -dict { PACKAGE_PIN {H16} IOSTANDARD {LVCMOS33}} [get_ports {sys_clock}]
+set_property -dict { PACKAGE_PIN {H16} IOSTANDARD {LVCMOS33}} [get_ports {sys_clock}]
 
 ## Use user IO as JTAG
 set_property -dict { PACKAGE_PIN F16 IOSTANDARD LVCMOS33 PULLUP {TRUE}} [get_ports { trst_n }];
@@ -30,7 +30,4 @@ set_property IOB {TRUE} [ get_cells -of_objects [ all_fanout -flat -endpoints_on
 set_property PACKAGE_PIN {G17} [get_ports {tx}]
 set_property IOSTANDARD {LVCMOS33} [get_ports {tx}]
 set_property IOB {TRUE} [ get_cells -of_objects [ all_fanin -flat -startpoints_only [get_ports {tx}]]]
-
-# Miz701N has a quad SPI flash
-set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
 
