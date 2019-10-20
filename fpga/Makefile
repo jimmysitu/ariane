@@ -2,12 +2,17 @@ VIVADO ?= vivado
 VIVADOFLAGS ?= -nojournal -mode batch -source scripts/prologue.tcl
 
 work-dir := work-fpga
-bit := $(work-dir)/ariane_xilinx.bit
-mcs := $(work-dir)/ariane_xilinx.mcs
 ip-dir := xilinx
 ifeq ($(BOARD), miz701n)
-	ips := xlnx_ps_7.xci
+bit := $(work-dir)/ariane_zynq.bit
+mcs := $(work-dir)/ariane_zynq.mcs
+	ips := 	xlnx_ps_7.xci                 \
+			xlnx_axi_dwidth_converter.xci \
+			xlnx_axi_gpio.xci             \
+
 else ifeq ($(BOARD), genesys2)
+bit := $(work-dir)/ariane_xilinx.bit
+mcs := $(work-dir)/ariane_xilinx.mcs
 	ips := 	xlnx_axi_clock_converter.xci  \
 			xlnx_axi_dwidth_converter.xci \
 			xlnx_axi_quad_spi.xci         \
@@ -28,8 +33,11 @@ $(mcs): $(bit)
 $(bit): $(ips)
 	mkdir -p $(work-dir)
 	$(VIVADO) $(VIVADOFLAGS) -source scripts/run.tcl
+ifeq ($(BOARD), miz701n)
+	cp ariane.runs/impl_1/ariane_zynq* ./$(work-dir)
+else ifeq ($(BOARD), genesys2)
 	cp ariane.runs/impl_1/ariane_xilinx* ./$(work-dir)
-
+endif
 $(ips): %.xci :
 	mkdir -p $(work-dir)
 	@echo Generating $(@F)

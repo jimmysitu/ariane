@@ -38,13 +38,13 @@ package ariane_soc;
 `else
   typedef enum int unsigned {
     DRAM     = 0,
-    PS7      = 1
-    GPIO     = 1,
-    UART     = 4,
-    PLIC     = 2,
-    CLINT    = 3,
-    ROM      = 4,
-    Debug    = 5
+    PS7      = 1,
+    GPIO     = 2,
+    UART     = 3,
+    PLIC     = 4,
+    CLINT    = 5,
+    ROM      = 6,
+    Debug    = 7
   } axi_slaves_t;
 `endif
   localparam NB_PERIPHERALS = Debug + 1;
@@ -92,7 +92,7 @@ package ariane_soc;
     ROMBase      = 64'h0001_0000,
     CLINTBase    = 64'h0200_0000,
     PLICBase     = 64'h0C00_0000,
-    DRAMBase     = 64'h1000_0000
+    DRAMBase     = 64'h1000_0000,
     UARTBase     = 64'hC000_0000,
     GPIOBase     = 64'hC100_0000,
     PS7Base      = 64'hE000_0000

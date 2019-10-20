@@ -11,6 +11,8 @@
 // Description: Xilinx Peripherals in PL
 // Author: Jimmy Situ <web@jimmystone.cn>
 
+`ifndef ARIANE_PERIPHERALS_ZYNQ
+`define ARIANE_PERIPHERALS_ZYNQ
 module ariane_peripherals #(
     parameter int AxiAddrWidth = -1,
     parameter int AxiDataWidth = -1,
@@ -22,7 +24,9 @@ module ariane_peripherals #(
     input  logic       clk_i           , // Clock
     input  logic       rst_ni          , // Asynchronous reset active low
     AXI_BUS.Slave      plic            ,
+    AXI_BUS.Slave      uart            ,
     AXI_BUS.Slave      gpio            ,
+    input  logic [7:0] irq_p2f_i       , // Interrupt from PS7
     output logic [1:0] irq_o           ,
     // UART
     input  logic       rx_i            ,
@@ -36,6 +40,7 @@ module ariane_peripherals #(
     // 1. PLIC
     // ---------------
     logic [ariane_soc::NumSources-1:0] irq_sources;
+    assign irq_sources[8:1] = irq_p2f_i[7:0];
 
     REG_BUS #(
         .ADDR_WIDTH ( 32 ),
@@ -425,3 +430,5 @@ module ariane_peripherals #(
         assign s_axi_gpio_wlast = 1'b1;
     end
 endmodule
+`endif
+

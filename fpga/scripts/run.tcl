@@ -33,6 +33,8 @@ if {$::env(BOARD) eq "genesys2"} {
     read_ip xilinx/xlnx_clk_gen/ip/xlnx_clk_gen.xci
     # read_ip xilinx/xlnx_protocol_checker/ip/xlnx_protocol_checker.xci
 } elseif {$::env(BOARD) eq "miz701n"} {
+    read_ip xilinx/xlnx_axi_dwidth_converter/ip/xlnx_axi_dwidth_converter.xci
+    read_ip xilinx/xlnx_axi_gpio/ip/xlnx_axi_gpio.xci
     read_ip xilinx/xlnx_ps_7/ip/xlnx_ps_7.xci
 } else {
     exit 1

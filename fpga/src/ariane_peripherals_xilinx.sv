@@ -10,6 +10,9 @@
 
 // Xilinx Peripehrals
 
+`ifdef ZYNQ
+`include ariane_peripherals_zynq.sv
+`else
 module ariane_peripherals #(
     parameter int AxiAddrWidth = -1,
     parameter int AxiDataWidth = -1,
@@ -733,3 +736,5 @@ module ariane_peripherals #(
         assign s_axi_gpio_wlast = 1'b1;
     end
 endmodule
+`endif
+
