@@ -9,7 +9,7 @@ set_property board_part $boardName [current_project]
 create_ip -name processing_system7 -vendor xilinx.com -library ip -module_name $ipName
 set_property -dict [list  \
             CONFIG.PCW_CRYSTAL_PERIPHERAL_FREQMHZ {50}          \
-            CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {50}            \
+            CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {40}            \
             CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41K256M16 RE-125}  \
             CONFIG.PCW_USE_FABRIC_INTERRUPT {1}             \
             CONFIG.PCW_P2F_QSPI_INTR {1}                    \
