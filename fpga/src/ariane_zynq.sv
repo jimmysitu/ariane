@@ -280,9 +280,9 @@ axi2mem #(
 );
 
 axi_master_connect i_dm_axi_master_connect (
-  .axi_req_i(dm_axi_m_req),
-  .axi_resp_o(dm_axi_m_resp),
-  .master(slave[1])
+    .axi_req_i(dm_axi_m_req),
+    .axi_resp_o(dm_axi_m_resp),
+    .master(slave[1])
 );
 
 axi_adapter #(
@@ -672,7 +672,7 @@ xlnx_ps_7 i_xlnx_ps_7 (
     .S_AXI_GP0_AWLEN    (s_axi_gp0_awlen),
     .S_AXI_GP0_AWQOS    (s_axi_gp0_awqos),
     .S_AXI_GP0_WSTRB    (s_axi_gp0_wstrb),
-    .S_AXI_GP0_ARID     (s_axi_gp0_arid),
+    .S_AXI_GP0_ARID     ('b0            ), // reordering depth of 1 for downsizer
     .S_AXI_GP0_AWID     (s_axi_gp0_awid),
     .S_AXI_GP0_WID      (s_axi_gp0_awid), //  Any AXI3 component that requires a WID signal can generate this from the AWID value
     // S_AXI_HP0
