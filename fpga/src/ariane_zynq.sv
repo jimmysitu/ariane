@@ -35,8 +35,8 @@ input logic rx;
 output logic tx;
 
 // GPIO I/O
-input logic  [7:0] sw;
-output logic [7:0] led;
+input logic  [0:0] sw;
+output logic [3:0] led;
 
 // JTAG I/O
 input  logic        tck;
