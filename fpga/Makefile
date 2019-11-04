@@ -52,7 +52,9 @@ mcs: $(mcs)
 
 program:
 	$(VIVADO) $(VIVADOFLAGS) -source scripts/program.tcl
-
+ifeq ($(BOARD), miz701n)
+	xsct scripts/zynq_post.tcl
+endif
 clean:
 	rm -rf *.log *.jou *.str *.mif *.xpr $(work-dir) ariane.cache ariane.hw ariane.ip_user_files
 

@@ -18,9 +18,20 @@
 open_hw
 
 connect_hw_server -url localhost:3121
-open_hw_target {localhost:3121/xilinx_tcf/Digilent/200300A8CD43B}
+if {$::env(BOARD) eq "genesys2"} {
+    open_hw_target {localhost:3121/xilinx_tcf/Digilent/200300A8CD43B}
 
-current_hw_device [get_hw_devices xc7k325t_0]
-set_property PROGRAM.FILE {work-fpga/ariane_xilinx.bit} [get_hw_devices xc7k325t_0]
-program_hw_devices [get_hw_devices xc7k325t_0]
-refresh_hw_device [lindex [get_hw_devices xc7k325t_0] 0]
+    current_hw_device [get_hw_devices xc7k325t_0]
+    set_property PROGRAM.FILE {work-fpga/ariane_xilinx.bit} [get_hw_devices xc7k325t_0]
+    program_hw_devices [get_hw_devices xc7k325t_0]
+    refresh_hw_device [lindex [get_hw_devices xc7k325t_0] 0]
+} elseif {$::env(BOARD) eq "miz701n"} {
+    open_hw_target {localhost:3121/xilinx_tcf/Digilent/210249855717}
+
+    current_hw_device [get_hw_devices xc7z020_1]
+    set_property PROGRAM.FILE {work-fpga/ariane_zynq.bit} [get_hw_devices xc7z020_1]
+    program_hw_devices [get_hw_devices xc7z020_1]
+    refresh_hw_device [lindex [get_hw_devices xc7z020_1] 0]
+} else {
+    exit 1
+}
