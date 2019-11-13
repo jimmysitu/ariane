@@ -194,7 +194,11 @@ src := $(addprefix $(root-dir), $(src))
 uart_src := $(wildcard fpga/src/apb_uart/src/*.vhd)
 uart_src := $(addprefix $(root-dir), $(uart_src))
 
+ifeq ($(BOARD), miz701n)
+fpga_src := $(wildcard fpga/src/*.sv) $(wildcard fpga/src/bootrom-zynq/*.sv)
+else
 fpga_src := $(wildcard fpga/src/*.sv) $(wildcard fpga/src/bootrom/*.sv) $(wildcard fpga/src/ariane-ethernet/*.sv)
+endif
 fpga_src := $(addprefix $(root-dir), $(fpga_src))
 
 # look for testbenches
