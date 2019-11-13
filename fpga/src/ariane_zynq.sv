@@ -14,17 +14,24 @@
 `ifndef ARIANE_ZYNQ
 `define ARIANE_ZYNQ
 module ariane_zynq (
-    /*AUTOARG*/
-   // Outputs
-   tx, led, tdo,
    // Inouts
+`ifndef VERILATOR
    PS_SRSTB, PS_PORB, PS_CLK, MIO, DDR_WEB, DDR_VRP, DDR_VRN,
    DDR_RAS_n, DDR_ODT, DDR_DRSTB, DDR_DQS_n, DDR_DQS, DDR_DQ, DDR_DM,
    DDR_Clk_n, DDR_Clk, DDR_CS_n, DDR_CKE, DDR_CAS_n, DDR_BankAddr,
    DDR_Addr,
+   tck, tms, trst_n, tdi,tdo,
+`else
+   debug_req_ready, debug_req_valid, debug_req,
+   debug_resp_ready, debug_resp_valid, debug_resp,
+`endif
+    /*AUTOARG*/
+   // Outputs
+   tx, led, dbg_o,
    // Inputs
-   sys_clock, sys_resetn, rx, sw, tck, tms, trst_n, tdi
+   sys_clock, sys_resetn, rx, sw
    );
+
 
 // SoC clock & reset
 input logic sys_clock;
@@ -38,13 +45,19 @@ output logic tx;
 input logic  [0:0] sw;
 output logic [3:0] led;
 
+`ifndef VERILATOR
 // JTAG I/O
 input  logic        tck;
 input  logic        tms;
 input  logic        trst_n;
 input  logic        tdi;
 output wire         tdo;
+`endif
 
+// Debug I/O
+output logic [15:0] dbg_o;   // Debug IO to LA
+
+`ifndef VERILATOR
 /*AUTOINOUT*/
 // Beginning of automatic inouts (from unused autoinst inouts)
 inout [14:0]            DDR_Addr;               // To/From i_xlnx_ps_7 of xlnx_ps_7.v
@@ -69,14 +82,30 @@ inout                   PS_CLK;                 // To/From i_xlnx_ps_7 of xlnx_p
 inout                   PS_PORB;                // To/From i_xlnx_ps_7 of xlnx_ps_7.v
 inout                   PS_SRSTB;               // To/From i_xlnx_ps_7 of xlnx_ps_7.v
 // End of automatics
+`endif
 /*AUTOINPUT*/
 /*AUTOOUTPUT*/
 
+`ifndef VERILATOR
+logic          debug_req_valid;
+logic          debug_req_ready;
+dm::dmi_req_t  debug_req;
+logic          debug_resp_valid;
+logic          debug_resp_ready;
+dm::dmi_resp_t debug_resp;
+`else
+input  logic          debug_req_valid;
+output logic          debug_req_ready;
+input  dm::dmi_req_t  debug_req;
+output logic          debug_resp_valid;
+input  logic          debug_resp_ready;
+output dm::dmi_resp_t debug_resp;
+`endif
 
 // 24 MByte in 8 byte words
 localparam NumWords = (24 * 1024 * 1024) / 8;
 localparam NBSlave = 2; // debug, ariane
-localparam AxiAddrWidth = 64;
+localparam AxiAddrWidth = 32;
 localparam AxiDataWidth = 64;
 localparam AxiIdWidthMaster = 4;
 localparam AxiIdWidthSlaves = AxiIdWidthMaster + $clog2(NBSlave); // 5
@@ -96,14 +125,14 @@ AXI_BUS #(
     .AXI_USER_WIDTH ( AxiUserWidth     )
 ) master[ariane_soc::NB_PERIPHERALS-1:0]();
 
-logic clk;
-logic ndmreset;
-logic ndmreset_n;
+logic rst_n;        // reset from ps7, PoR
+logic clk;          // clock from ps7, SoC clock
+logic ndmreset;     // not debug module reset, from dm_top
+logic ndmreset_n;   // not debug module reset, sync delay from ndmreset
 logic debug_req_irq;
 logic timer_irq;
 logic ipi;
 
-logic rst_n;
 logic rtc;
 
 
@@ -113,12 +142,7 @@ logic [AxiAddrWidth-1:0] rom_addr;
 logic [AxiDataWidth-1:0] rom_rdata;
 
 // Debug
-logic          debug_req_valid;
-logic          debug_req_ready;
-dm::dmi_req_t  debug_req;
-logic          debug_resp_valid;
-logic          debug_resp_ready;
-dm::dmi_resp_t debug_resp;
+logic          dmi_rst_n;
 
 logic dmactive;
 
@@ -132,12 +156,20 @@ assign test_en    = 1'b0;
 
 logic [NBSlave-1:0] pc_asserted;
 
+rstgen i_rstgen_dm (
+    .clk_i        ( clk                     ),
+    .rst_ni       ( rst_n & sys_resetn      ),
+    .test_mode_i  ( test_en                 ),
+    .rst_no       ( dmi_rst_n               ),
+    .init_no      (                         ) // keep open
+);
+
 rstgen i_rstgen_main (
-    .clk_i        ( clk                      ),
-    .rst_ni       ( ~ndmreset                ),
-    .test_mode_i  ( test_en                  ),
-    .rst_no       ( ndmreset_n               ),
-    .init_no      (                          ) // keep open
+    .clk_i        ( clk                     ),
+    .rst_ni       ( dmi_rst_n & (~ndmreset) ),
+    .test_mode_i  ( test_en                 ),
+    .rst_no       ( ndmreset_n              ),
+    .init_no      (                         ) // keep open
 );
 
 
@@ -187,9 +219,12 @@ axi_node_wrap_with_slices #(
 // ---------------
 // Debug Module
 // ---------------
-dmi_jtag i_dmi_jtag (
+`ifndef VERILATOR
+dmi_jtag #(
+    .IdcodeValue ( 32'hbeefdeef  )
+)i_dmi_jtag (
     .clk_i                ( clk                  ),
-    .rst_ni               ( rst_n & sys_resetn   ),
+    .rst_ni               ( dmi_rst_n            ),
     .dmi_rst_no           (                      ), // keep open
     .testmode_i           ( test_en              ),
     .dmi_req_valid_o      ( debug_req_valid      ),
@@ -205,6 +240,7 @@ dmi_jtag i_dmi_jtag (
     .td_o                 ( tdo    ),
     .tdo_oe_o             (        )
 );
+`endif
 
 ariane_axi::req_t    dm_axi_m_req;
 ariane_axi::resp_t   dm_axi_m_resp;
@@ -232,7 +268,7 @@ dm_top #(
     .SelectableHarts  ( 1'b1              )
 ) i_dm_top (
     .clk_i            ( clk               ),
-    .rst_ni           ( rst_n             ), // PoR
+    .rst_ni           ( dmi_rst_n         ), // PoR
     .testmode_i       ( test_en           ),
     .ndmreset_o       ( ndmreset          ),
     .dmactive_o       ( dmactive          ), // active debug session
@@ -253,7 +289,7 @@ dm_top #(
     .master_gnt_i     ( dm_master_gnt     ),
     .master_r_valid_i ( dm_master_r_valid ),
     .master_r_rdata_i ( dm_master_r_rdata ),
-    .dmi_rst_ni       ( rst_n             ),
+    .dmi_rst_ni       ( dmi_rst_n         ),
     .dmi_req_valid_i  ( debug_req_valid   ),
     .dmi_req_ready_o  ( debug_req_ready   ),
     .dmi_req_i        ( debug_req         ),
@@ -269,7 +305,7 @@ axi2mem #(
     .AXI_USER_WIDTH ( AxiUserWidth        )
 ) i_dm_axi2mem (
     .clk_i      ( clk                       ),
-    .rst_ni     ( rst_n                     ),
+    .rst_ni     ( dmi_rst_n                 ),
     .slave      ( master[ariane_soc::Debug] ),
     .req_o      ( dm_slave_req              ),
     .we_o       ( dm_slave_we               ),
@@ -289,7 +325,7 @@ axi_adapter #(
     .DATA_WIDTH            ( AxiDataWidth              )
 ) i_dm_axi_master (
     .clk_i                 ( clk                       ),
-    .rst_ni                ( rst_n                     ),
+    .rst_ni                ( dmi_rst_n                 ),
     .req_i                 ( dm_master_req             ),
     .type_i                ( ariane_axi::SINGLE_REQ    ),
     .gnt_o                 ( dm_master_gnt             ),
@@ -409,7 +445,11 @@ ariane_peripherals #(
     .AxiIdWidth   ( AxiIdWidthSlaves ),
     .AxiUserWidth ( AxiUserWidth     ),
     .InclUART     ( 1'b1             ),
+`ifndef VERILATOR
     .InclGPIO     ( 1'b1             )
+`else
+    .InclGPIO     ( 1'b0             )
+`endif
 ) i_ariane_peripherals (
     .clk_i        ( clk                          ),
     .rst_ni       ( ndmreset_n                   ),
@@ -513,6 +553,7 @@ assign dram.b_user = '0;
 // ---------------
 // PS7 <==> GP0
 // ---------------
+`ifndef VERILATOR
 logic [31:0] s_axi_gp0_awaddr;
 logic [7:0]  s_axi_gp0_awlen;
 logic [2:0]  s_axi_gp0_awsize;
@@ -627,7 +668,47 @@ xlnx_axi_dwidth_converter i_xlnx_axi_dwidth_converter_gp0(
     .m_axi_rvalid   ( s_axi_gp0_rvalid  ),
     .m_axi_rready   ( s_axi_gp0_rready  )
 );
+`else
+  logic                         gp0_req;
+  logic                         gp0_we;
+  logic [AXI_ADDRESS_WIDTH-1:0] gp0_addr;
+  logic [AXI_DATA_WIDTH/8-1:0]  gp0_be;
+  logic [AXI_DATA_WIDTH-1:0]    gp0_wdata;
+  logic [AXI_DATA_WIDTH-1:0]    gp0_rdata;
+  
+  axi2mem #(
+    .AXI_ID_WIDTH   ( ariane_soc::IdWidthSlave ),
+    .AXI_ADDR_WIDTH ( AxiAddrWidth             ),
+    .AXI_DATA_WIDTH ( AxiDataWidth             ),
+    .AXI_USER_WIDTH ( AxiUserWidth             )
+  ) i_axi2mem_gp0 (
+    .clk_i  ( clk_i        ),
+    .rst_ni ( ndmreset_n   ),
+    .slave  ( master[ariane_soc::PS7] ),
+    .req_o  ( gp0_req          ),
+    .we_o   ( gp0_we           ),
+    .addr_o ( gp0_addr         ),
+    .be_o   ( gp0_be           ),
+    .data_o ( gp0_wdata        ),
+    .data_i ( gp0_rdata        )
+  );
 
+  sram #(
+    .DATA_WIDTH ( AxiDataWidth ),
+    .NUM_WORDS  ( (ariane_soc::PS7Length*8)/AxiDataWidth )
+  ) i_sram_gp0 (
+    .clk_i      ( clk_i          ),
+    .rst_ni     ( rst_ni         ),
+    .req_i      ( gp0_req            ),
+    .we_i       ( gp0_we             ),
+    .addr_i     ( gp0_addr[$clog2((ariane_soc::PS7Length*8)/AxiDataWidth)-1+$clog2(AxiDataWidth/8):$clog2(AxiDataWidth/8)] ),
+    .wdata_i    ( gp0_wdata          ),
+    .be_i       ( gp0_be             ),
+    .rdata_o    ( gp0_rdata          )
+  );
+`endif
+
+`ifndef VERILATOR
 // ---------------
 // Xilinx PS7
 // ---------------
@@ -756,7 +837,49 @@ xlnx_ps_7 i_xlnx_ps_7 (
                        .PS_SRSTB        (PS_SRSTB),
                        .PS_CLK          (PS_CLK),
                        .PS_PORB         (PS_PORB));
+`else
+  logic                         hp0_req;
+  logic                         hp0_we;
+  logic [AXI_ADDRESS_WIDTH-1:0] hp0_addr;
+  logic [AXI_DATA_WIDTH/8-1:0]  hp0_be;
+  logic [AXI_DATA_WIDTH-1:0]    hp0_wdata;
+  logic [AXI_DATA_WIDTH-1:0]    hp0_rdata;
 
+  axi2mem #(
+    .AXI_ID_WIDTH   ( ariane_soc::IdWidthSlave ),
+    .AXI_ADDR_WIDTH ( AxiAddrWidth             ),
+    .AXI_DATA_WIDTH ( AxiDataWidth             ),
+    .AXI_USER_WIDTH ( AxiUserWidth             )
+  ) i_axi2mem_hp0 (
+    .clk_i  ( clk_i        ),
+    .rst_ni ( ndmreset_n   ),
+    .slave  ( dram         ),
+    .req_o  ( hp0_req      ),
+    .we_o   ( hp0_we       ),
+    .addr_o ( hp0_addr     ),
+    .be_o   ( hp0_be       ),
+    .data_o ( hp0_wdata    ),
+    .data_i ( hp0_rdata    )
+  );
+
+  sram #(
+    .DATA_WIDTH ( AxiDataWidth ),
+    .NUM_WORDS  ( (ariane_soc::DRAMLength*8)/AxiDataWidth )
+  ) i_sram_hp0 (
+    .clk_i      ( clk_i          ),
+    .rst_ni     ( rst_ni         ),
+    .req_i      ( hp0_req            ),
+    .we_i       ( hp0_we             ),
+    .addr_i     ( hp0_addr[$clog2((ariane_soc::DRAMLength*8)/AxiDataWidth)-1+$clog2(AxiDataWidth/8):$clog2(AxiDataWidth/8)] ),
+    .wdata_i    ( hp0_wdata          ),
+    .be_i       ( hp0_be             ),
+    .rdata_o    ( hp0_rdata          )
+  );
+
+  assign irq_p2f = 'b0;
+  assign clk = sys_clock;
+  assign rst_n = sys_resetn;
+`endif
 endmodule
 `endif
 
