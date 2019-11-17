@@ -21,13 +21,14 @@ module ariane_zynq (
    DDR_Clk_n, DDR_Clk, DDR_CS_n, DDR_CKE, DDR_CAS_n, DDR_BankAddr,
    DDR_Addr,
    tck, tms, trst_n, tdi,tdo,
+   dbg_o,
 `else
    debug_req_ready, debug_req_valid, debug_req,
    debug_resp_ready, debug_resp_valid, debug_resp,
 `endif
     /*AUTOARG*/
    // Outputs
-   tx, led, dbg_o,
+   tx, led,
    // Inputs
    sys_clock, sys_resetn, rx, sw
    );
@@ -54,8 +55,10 @@ input  logic        tdi;
 output wire         tdo;
 `endif
 
+`ifndef VERILATOR
 // Debug I/O
 output logic [15:0] dbg_o;   // Debug IO to LA
+`endif
 
 `ifndef VERILATOR
 /*AUTOINOUT*/
@@ -176,6 +179,7 @@ rstgen i_rstgen_main (
 // ---------------
 // AXI Xbar
 // ---------------
+`ifndef VERILATOR
 axi_node_wrap_with_slices #(
     // three ports from Ariane (instruction, data and bypass)
     .NB_SLAVE           ( NBSlave                    ),
@@ -187,6 +191,17 @@ axi_node_wrap_with_slices #(
     .AXI_ID_WIDTH       ( AxiIdWidthMaster           ),
     .MASTER_SLICE_DEPTH ( 2                          ),
     .SLAVE_SLICE_DEPTH  ( 2                          )
+`else
+// For some unknown reason, verilator cannot compile with axi_multicut
+axi_node_intf_wrap #(
+    .NB_SLAVE       ( NBSlave                    ),
+    .NB_MASTER      ( ariane_soc::NB_PERIPHERALS ),
+    .NB_REGION      ( ariane_soc::NrRegion       ),
+    .AXI_ADDR_WIDTH ( AxiAddrWidth               ),
+    .AXI_DATA_WIDTH ( AxiDataWidth               ),
+    .AXI_USER_WIDTH ( AxiUserWidth               ),
+    .AXI_ID_WIDTH   ( AxiIdWidthMaster           )
+`endif
 ) i_axi_xbar (
     .clk          ( clk        ),
     .rst_n        ( ndmreset_n ),
@@ -194,24 +209,24 @@ axi_node_wrap_with_slices #(
     .slave        ( slave      ),
     .master       ( master     ),
     .start_addr_i ({
-        ariane_soc::DebugBase,
-        ariane_soc::ROMBase,
-        ariane_soc::CLINTBase,
-        ariane_soc::PLICBase,
-        ariane_soc::DRAMBase,
-        ariane_soc::UARTBase,
-        ariane_soc::GPIOBase,
-        ariane_soc::PS7Base
+        ariane_soc::DebugBase[AxiAddrWidth-1:0],
+        ariane_soc::ROMBase  [AxiAddrWidth-1:0],
+        ariane_soc::CLINTBase[AxiAddrWidth-1:0],
+        ariane_soc::PLICBase [AxiAddrWidth-1:0],
+        ariane_soc::DRAMBase [AxiAddrWidth-1:0],
+        ariane_soc::UARTBase [AxiAddrWidth-1:0],
+        ariane_soc::GPIOBase [AxiAddrWidth-1:0],
+        ariane_soc::PS7Base  [AxiAddrWidth-1:0]
     }),
     .end_addr_i   ({
-        ariane_soc::DebugBase    + ariane_soc::DebugLength - 1,
-        ariane_soc::ROMBase      + ariane_soc::ROMLength - 1,
-        ariane_soc::CLINTBase    + ariane_soc::CLINTLength - 1,
-        ariane_soc::PLICBase     + ariane_soc::PLICLength - 1,
-        ariane_soc::DRAMBase     + ariane_soc::DRAMLength - 1,
-        ariane_soc::UARTBase     + ariane_soc::UARTLength - 1,
-        ariane_soc::GPIOBase     + ariane_soc::GPIOLength - 1,
-        ariane_soc::PS7Base      + ariane_soc::PS7Length - 1
+        ariane_soc::DebugBase[AxiAddrWidth-1:0]    + ariane_soc::DebugLength[AxiAddrWidth-1:0] - 1,
+        ariane_soc::ROMBase  [AxiAddrWidth-1:0]    + ariane_soc::ROMLength  [AxiAddrWidth-1:0] - 1,
+        ariane_soc::CLINTBase[AxiAddrWidth-1:0]    + ariane_soc::CLINTLength[AxiAddrWidth-1:0] - 1,
+        ariane_soc::PLICBase [AxiAddrWidth-1:0]    + ariane_soc::PLICLength [AxiAddrWidth-1:0] - 1,
+        ariane_soc::DRAMBase [AxiAddrWidth-1:0]    + ariane_soc::DRAMLength [AxiAddrWidth-1:0] - 1,
+        ariane_soc::UARTBase [AxiAddrWidth-1:0]    + ariane_soc::UARTLength [AxiAddrWidth-1:0] - 1,
+        ariane_soc::GPIOBase [AxiAddrWidth-1:0]    + ariane_soc::GPIOLength [AxiAddrWidth-1:0] - 1,
+        ariane_soc::PS7Base  [AxiAddrWidth-1:0]    + ariane_soc::PS7Length  [AxiAddrWidth-1:0] - 1
     }),
     .valid_rule_i (ariane_soc::ValidRule)
 );
@@ -444,10 +459,11 @@ ariane_peripherals #(
     .AxiDataWidth ( AxiDataWidth     ),
     .AxiIdWidth   ( AxiIdWidthSlaves ),
     .AxiUserWidth ( AxiUserWidth     ),
-    .InclUART     ( 1'b1             ),
 `ifndef VERILATOR
+    .InclUART     ( 1'b1             ),
     .InclGPIO     ( 1'b1             )
 `else
+    .InclUART     ( 1'b0             ),
     .InclGPIO     ( 1'b0             )
 `endif
 ) i_ariane_peripherals (
@@ -669,12 +685,12 @@ xlnx_axi_dwidth_converter i_xlnx_axi_dwidth_converter_gp0(
     .m_axi_rready   ( s_axi_gp0_rready  )
 );
 `else
-  logic                         gp0_req;
-  logic                         gp0_we;
-  logic [AXI_ADDRESS_WIDTH-1:0] gp0_addr;
-  logic [AXI_DATA_WIDTH/8-1:0]  gp0_be;
-  logic [AXI_DATA_WIDTH-1:0]    gp0_wdata;
-  logic [AXI_DATA_WIDTH-1:0]    gp0_rdata;
+  logic                       gp0_req;
+  logic                       gp0_we;
+  logic [AxiAddrWidth-1:0]    gp0_addr;
+  logic [AxiDataWidth/8-1:0]  gp0_be;
+  logic [AxiDataWidth-1:0]    gp0_wdata;
+  logic [AxiDataWidth-1:0]    gp0_rdata;
   
   axi2mem #(
     .AXI_ID_WIDTH   ( ariane_soc::IdWidthSlave ),
@@ -682,8 +698,8 @@ xlnx_axi_dwidth_converter i_xlnx_axi_dwidth_converter_gp0(
     .AXI_DATA_WIDTH ( AxiDataWidth             ),
     .AXI_USER_WIDTH ( AxiUserWidth             )
   ) i_axi2mem_gp0 (
-    .clk_i  ( clk_i        ),
-    .rst_ni ( ndmreset_n   ),
+    .clk_i  ( clk              ),
+    .rst_ni ( ndmreset_n       ),
     .slave  ( master[ariane_soc::PS7] ),
     .req_o  ( gp0_req          ),
     .we_o   ( gp0_we           ),
@@ -697,8 +713,8 @@ xlnx_axi_dwidth_converter i_xlnx_axi_dwidth_converter_gp0(
     .DATA_WIDTH ( AxiDataWidth ),
     .NUM_WORDS  ( (ariane_soc::PS7Length*8)/AxiDataWidth )
   ) i_sram_gp0 (
-    .clk_i      ( clk_i          ),
-    .rst_ni     ( rst_ni         ),
+    .clk_i      ( clk                ),
+    .rst_ni     ( ndmreset_n         ),
     .req_i      ( gp0_req            ),
     .we_i       ( gp0_we             ),
     .addr_i     ( gp0_addr[$clog2((ariane_soc::PS7Length*8)/AxiDataWidth)-1+$clog2(AxiDataWidth/8):$clog2(AxiDataWidth/8)] ),
@@ -838,12 +854,12 @@ xlnx_ps_7 i_xlnx_ps_7 (
                        .PS_CLK          (PS_CLK),
                        .PS_PORB         (PS_PORB));
 `else
-  logic                         hp0_req;
-  logic                         hp0_we;
-  logic [AXI_ADDRESS_WIDTH-1:0] hp0_addr;
-  logic [AXI_DATA_WIDTH/8-1:0]  hp0_be;
-  logic [AXI_DATA_WIDTH-1:0]    hp0_wdata;
-  logic [AXI_DATA_WIDTH-1:0]    hp0_rdata;
+  logic                       hp0_req;
+  logic                       hp0_we;
+  logic [AxiAddrWidth-1:0]    hp0_addr;
+  logic [AxiDataWidth/8-1:0]  hp0_be;
+  logic [AxiDataWidth-1:0]    hp0_wdata;
+  logic [AxiDataWidth-1:0]    hp0_rdata;
 
   axi2mem #(
     .AXI_ID_WIDTH   ( ariane_soc::IdWidthSlave ),
@@ -851,7 +867,7 @@ xlnx_ps_7 i_xlnx_ps_7 (
     .AXI_DATA_WIDTH ( AxiDataWidth             ),
     .AXI_USER_WIDTH ( AxiUserWidth             )
   ) i_axi2mem_hp0 (
-    .clk_i  ( clk_i        ),
+    .clk_i  ( clk          ),
     .rst_ni ( ndmreset_n   ),
     .slave  ( dram         ),
     .req_o  ( hp0_req      ),
@@ -866,8 +882,8 @@ xlnx_ps_7 i_xlnx_ps_7 (
     .DATA_WIDTH ( AxiDataWidth ),
     .NUM_WORDS  ( (ariane_soc::DRAMLength*8)/AxiDataWidth )
   ) i_sram_hp0 (
-    .clk_i      ( clk_i          ),
-    .rst_ni     ( rst_ni         ),
+    .clk_i      ( clk                ),
+    .rst_ni     ( ndmreset_n         ),
     .req_i      ( hp0_req            ),
     .we_i       ( hp0_we             ),
     .addr_i     ( hp0_addr[$clog2((ariane_soc::DRAMLength*8)/AxiDataWidth)-1+$clog2(AxiDataWidth/8):$clog2(AxiDataWidth/8)] ),

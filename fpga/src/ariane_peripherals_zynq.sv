@@ -41,6 +41,7 @@ module ariane_peripherals #(
     // ---------------
     logic [ariane_soc::NumSources-1:0] irq_sources;
     assign irq_sources[8:1] = irq_p2f_i[7:0];
+    assign irq_sources[29:9] = 'b0;
 
     REG_BUS #(
         .ADDR_WIDTH ( 32 ),
@@ -280,6 +281,12 @@ module ariane_peripherals #(
             .pready_o  ( uart_pready  ),
             .pslverr_o ( uart_pslverr )
         );
+        `else
+            assign uart_pready = 1'b0;
+            assign uart_prdata = 32'b0;
+            assign uart_pslverr = 1'b1;
+            assign tx_o = 1'b1;
+            assign irq_sources[0] = 1'b0;
         `endif
         /* pragma translate_on */
     end
@@ -290,7 +297,6 @@ module ariane_peripherals #(
     assign gpio.r_user = 1'b0;
 
     if (InclGPIO) begin : gen_gpio
-
         logic [31:0] s_axi_gpio_awaddr;
         logic [7:0]  s_axi_gpio_awlen;
         logic [2:0]  s_axi_gpio_awsize;
@@ -428,6 +434,9 @@ module ariane_peripherals #(
 
         assign s_axi_gpio_rlast = 1'b1;
         assign s_axi_gpio_wlast = 1'b1;
+    end
+    else begin
+        assign leds_o = 'b0;
     end
 endmodule
 `endif
