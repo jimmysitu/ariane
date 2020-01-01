@@ -58,6 +58,11 @@ output wire         tdo;
 `ifndef VERILATOR
 // Debug I/O
 output logic [15:0] dbg_o;   // Debug IO to LA
+assign dbg_o[0] = tck;
+assign dbg_o[1] = tms;
+assign dbg_o[2] = trst_n;
+assign dbg_o[3] = tdi;
+assign dbg_o[4] = tdo;
 `endif
 
 `ifndef VERILATOR
