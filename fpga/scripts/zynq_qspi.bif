@@ -1,0 +1,6 @@
+image:
+{
+	[bootloader]dummy_system.fsbl/executable.elf
+	work-fpga/ariane_zynq.bit
+}
+

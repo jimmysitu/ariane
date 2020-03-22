@@ -12,8 +12,10 @@ clean:
 	mkdir -p ip
 	rm -rf ${PROJECT}.*
 	rm -rf component.xml
-	rm -rf vivado*.jou
-	rm -rf vivado*.log
-	rm -rf vivado*.str
+	rm -rf *.jou
+	rm -rf *.log
+	rm -rf *.str
+	rm -rf *.sdk
+	rm -rf *.sim
 	rm -rf xgui
 	rm -rf .Xil
