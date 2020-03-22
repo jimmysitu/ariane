@@ -32,7 +32,7 @@ ifeq ($(BOARD), miz701n)
 	$(VIVADO) -nojournal -mode batch -source scripts/dummy_system.tcl
 	xsct scripts/create_fsbl.tcl
 	bootgen -arch zynq -image scripts/zynq_qspi.bif \
-		-o dummy_system.bin
+		-w on -o dummy_system.bin
 else ifeq ($(BOARD), genesys2)
 	$(VIVADO) $(VIVADOFLAGS) -source scripts/write_cfgmem.tcl -tclargs $@ $^
 endif
