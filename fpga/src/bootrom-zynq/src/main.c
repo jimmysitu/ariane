@@ -1,3 +1,4 @@
+#include "platform.h"
 #include "uart.h"
 #include "spi.h"
 #include "sd.h"
@@ -8,15 +9,16 @@ int main()
     init_uart(50000000, 115200);
     print_uart("Hello World!\r\n");
 
-    int res = gpt_find_boot_partition((uint8_t *)0x80000000UL, 2 * 16384);
+    int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 2 * 16384);
 
     if (res == 0)
     {
         // jump to the address
-        __asm__ volatile(
-            "li s0, 0x80000000;"
-            "la a1, _dtb;"
-            "jr s0");
+        __asm__ volatile("li s0, %0"
+                : //no output
+                : "i" (DRAM_BASE));
+        __asm__ volatile("la a1, _dtb");
+        __asm__ volatile("jr s0" );
     }
 
     while (1)
