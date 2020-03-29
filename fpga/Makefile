@@ -71,7 +71,7 @@ ifeq ($(BOARD), miz701n)
 endif
 
 clean:
-	rm -rf *.log *.jou *.str *.mif *.xpr *.runs *.sdk *.srcs *.sim \
+	rm -rf *.log *.jou *.str *.mif *.xpr *.runs *.sdk *.srcs *.sim *.bin \
 		$(work-dir) *.cache *.hw *.ip_user_files
 
 .PHONY:

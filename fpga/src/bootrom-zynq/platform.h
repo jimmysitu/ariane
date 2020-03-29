@@ -4,5 +4,6 @@
 #define DRAM_BASE 0x10000000
 #define DRAM_SIZE 0x30000000
 
+#define PLATFORM_FREQ 40000000
 #endif
 

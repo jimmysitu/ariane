@@ -6,7 +6,7 @@
 
 int main()
 {
-    init_uart(50000000, 115200);
+    init_uart(PLATFORM_FREQ, 115200);
     print_uart("Hello World!\r\n");
 
     int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 2 * 16384);

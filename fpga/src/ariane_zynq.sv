@@ -63,6 +63,8 @@ assign dbg_o[1] = tms;
 assign dbg_o[2] = trst_n;
 assign dbg_o[3] = tdi;
 assign dbg_o[4] = tdo;
+assign dbg_o[5] = tx;
+assign dbg_o[6] = rx;
 `endif
 
 `ifndef VERILATOR

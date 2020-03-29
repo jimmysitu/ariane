@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#define UART_BASE 0x10000000
+#define UART_BASE 0xC0000000
 
 #define UART_RBR UART_BASE + 0
 #define UART_THR UART_BASE + 0
