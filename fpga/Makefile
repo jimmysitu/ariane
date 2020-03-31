@@ -6,6 +6,7 @@ ip-dir := xilinx
 ifeq ($(BOARD), miz701n)
 	bit := $(work-dir)/ariane_zynq.bit
 	mcs := $(work-dir)/ariane_zynq.mcs
+	bin := $(work-dir)/ariane_zynq.bin
 	ips := 	xlnx_ps_7.xci                 \
 			xlnx_axi_dwidth_converter.xci \
 			xlnx_axi_gpio.xci             \
@@ -24,17 +25,25 @@ endif
 ips := $(addprefix $(work-dir)/, $(ips))
 ips-target := $(join $(addsuffix /ip/, $(addprefix $(ip-dir)/, $(basename $(ips)))), $(ips))
 
-all: $(mcs)
 
-# Generate mcs from bitstream
-$(mcs): $(bit)
+# Generate mcs/bin from bitstream
 ifeq ($(BOARD), miz701n)
+all: $(bin)
+$(bin): $(bit)
 	$(VIVADO) -nojournal -mode batch -source scripts/dummy_system.tcl
 	xsct scripts/create_fsbl.tcl
 	bootgen -arch zynq -image scripts/zynq_qspi.bif \
-		-w on -o dummy_system.bin
+		-w on -o $(work-dir)/ariane_zynq.bin
+
+bin: $(bin)
+
 else ifeq ($(BOARD), genesys2)
+all: $(mcs)
+$(mcs): $(bit)
 	$(VIVADO) $(VIVADOFLAGS) -source scripts/write_cfgmem.tcl -tclargs $@ $^
+
+mcs: $(mcs)
+
 endif
 
 $(bit): $(ips)
@@ -52,7 +61,6 @@ $(ips): %.xci :
 	@cd $(ip-dir)/$(basename $(@F)) && make clean && make
 	@cp $(ip-dir)/$(basename $(@F))/ip/$(@F) $@
 
-mcs: $(mcs)
 
 program:
 	$(VIVADO) $(VIVADOFLAGS) -source scripts/program.tcl
