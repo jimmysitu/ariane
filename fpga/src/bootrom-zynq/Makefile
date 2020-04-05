@@ -7,8 +7,10 @@ CCASFLAGS = -mcmodel=medany -mexplicit-relocs
 LDFLAGS = -nostdlib -nodefaultlibs -nostartfiles
 
 INCLUDES = -I./ -I./src
+DEFINES = -DPRINTF_DISABLE_SUPPORT_EXPONENTIAL \
+		  -DPRINTF_DISABLE_SUPPORT_FLOAT \
 
-SRCS_C = src/main.c src/uart.c src/spi.c src/sd.c src/gpt.c
+SRCS_C = src/main.c src/uart.c src/spi.c src/sd.c src/gpt.c src/printf.c
 SRCS_ASM = startup.S
 OBJS_C = $(SRCS_C:.c=.o)
 OBJS_S = $(SRCS_ASM:.S=.o)
@@ -21,7 +23,7 @@ MAIN_SV = $(MAIN:.elf=.sv)
 #.PHONY: clean
 
 $(MAIN): ariane.dtb $(OBJS_C) $(OBJS_S) linker.lds
-	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) -Tlinker.lds $(OBJS_S) $(OBJS_C) -o $(MAIN)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) -Tlinker.lds $(OBJS_S) $(OBJS_C) -o $(MAIN)
 	@echo "LD    >= $(MAIN)"
 
 %.img: %.bin
@@ -31,7 +33,7 @@ $(MAIN): ariane.dtb $(OBJS_C) $(OBJS_S) linker.lds
 	$(CROSSCOMPILE)objcopy -O binary $< $@
 
 %.o: %.c
-	@$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
+	@$(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -c $<  -o $@
 	@echo "CC    <= $<"
 
 %.o: %.S

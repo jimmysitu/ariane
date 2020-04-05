@@ -1,13 +1,16 @@
 #include "platform.h"
+
 #include "uart.h"
 #include "spi.h"
 #include "sd.h"
+
+#include "printf.h"
 #include "gpt.h"
 
 int main()
 {
     init_uart(PLATFORM_FREQ, 115200);
-    print_uart("Hello World!\r\n");
+    printf("Ariane ZYNQ Zero Stage Bootloader\n");
 
     int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 2 * 16384);
 
