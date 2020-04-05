@@ -3,7 +3,6 @@
 
 #include "sd.h"
 #include "uart.h"
-#include "xstatus.h"
 
 int gpt_find_boot_partition(uint8_t* dest, uint32_t size)
 {

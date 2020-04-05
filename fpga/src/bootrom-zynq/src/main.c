@@ -1,5 +1,6 @@
 #include "platform.h"
 
+#include "timer.h"
 #include "uart.h"
 #include "printf.h"
 #include "gpt.h"

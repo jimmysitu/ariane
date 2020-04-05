@@ -37,5 +37,11 @@ int init_sd()
 
 int sd_copy(void *dst, uint32_t src_lba, uint32_t size)
 {
+    int status = XSdPs_ReadPolled(&Ps7_sd_0, src_lba, 1, dst);
+    if(status != 0){
+        printf("SD0 Read failed!\n");
+        return -1;
+    }
     return 0;
 }
+

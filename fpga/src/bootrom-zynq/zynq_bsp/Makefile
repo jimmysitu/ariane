@@ -19,6 +19,9 @@ libs: $(addsuffix /make.libs,$(SUBDIRS))
 
 clean: $(addsuffix /make.clean,$(SUBDIRS))
 
+release_dir:
+	mkdir -p $(PROCESSOR)/lib
+
 $(PROCESSOR)/lib/libxil.a: $(PROCESSOR)/lib/libxil_init.a
 	cp -f $< $@
 
@@ -30,7 +33,7 @@ $(PROCESSOR)/lib/libxil.a: $(PROCESSOR)/lib/libxil_init.a
 		"COMPILER_FLAGS=  -O2 -c -march=rv64imac -mabi=lp64 -Wall -mcmodel=medany -mexplicit-relocs" \
 		"EXTRA_COMPILER_FLAGS=-nostdlib -nodefaultlibs -nostartfiles -ggdb -Wall -Wextra"
 
-%/make.libs: include
+%/make.libs: include release_dir
 	@echo "Running Make libs in $(subst /make.libs,,$@)"
 	$(MAKE) -C $(subst /make.libs,,$@) -s libs \
 		"SHELL=$(SHELL)" "COMPILER=riscv64-unknown-elf-gcc" \
@@ -38,7 +41,8 @@ $(PROCESSOR)/lib/libxil.a: $(PROCESSOR)/lib/libxil_init.a
 		"COMPILER_FLAGS=  -O2 -c -march=rv64imac -mabi=lp64 -Wall -mcmodel=medany -mexplicit-relocs" \
 		"EXTRA_COMPILER_FLAGS=-Wall -Wextra"
 
-%/make.clean: 
-	$(MAKE) -C $(subst /make.clean,,$@) -s clean 
+%/make.clean:
+	$(MAKE) -C $(subst /make.clean,,$@) -s clean
+
 clean:
 	rm -f ${PROCESSOR}/lib/libxil.a
