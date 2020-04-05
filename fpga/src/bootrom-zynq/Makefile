@@ -6,14 +6,15 @@ CFLAGS = -Os -ggdb -march=rv64imac -mabi=lp64 -Wall -mcmodel=medany -mexplicit-r
 CCASFLAGS = -mcmodel=medany -mexplicit-relocs
 LDFLAGS = -nostdlib -nodefaultlibs -nostartfiles
 
-INCLUDES = -I./ -I./src
+INCLUDES = -I./ -I./src -I./zynq_bsp/ariane_zynq/include
 DEFINES = -DPRINTF_DISABLE_SUPPORT_EXPONENTIAL \
 		  -DPRINTF_DISABLE_SUPPORT_FLOAT \
 
-SRCS_C = src/main.c src/uart.c src/spi.c src/sd.c src/gpt.c src/printf.c
+SRCS_C = src/main.c src/uart.c src/sd.c src/gpt.c src/printf.c src/timer.c
 SRCS_ASM = startup.S
 OBJS_C = $(SRCS_C:.c=.o)
 OBJS_S = $(SRCS_ASM:.S=.o)
+LIBS = zynq_bsp/ariane_zynq/lib/libxil.a
 
 MAIN = bootrom.elf
 MAIN_BIN = $(MAIN:.elf=.bin)
@@ -22,8 +23,10 @@ MAIN_SV = $(MAIN:.elf=.sv)
 
 #.PHONY: clean
 
+default: all
+
 $(MAIN): ariane.dtb $(OBJS_C) $(OBJS_S) linker.lds
-	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) -Tlinker.lds $(OBJS_S) $(OBJS_C) -o $(MAIN)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) -Tlinker.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $(MAIN)
 	@echo "LD    >= $(MAIN)"
 
 %.img: %.bin
@@ -48,9 +51,13 @@ $(MAIN): ariane.dtb $(OBJS_C) $(OBJS_S) linker.lds
 	@echo "PYTHON >= $(MAIN_SV)"
 
 clean:
+	make -C zynq_bsp clean
 	$(RM) $(OBJS_C) $(OBJS_S) $(MAIN) $(MAIN_BIN) $(MAIN_IMG) *.dtb
 
-all: $(MAIN) $(MAIN_BIN) $(MAIN_IMG) $(MAIN_SV)
-	@echo "zero stage bootloader has been compiled!"
+lib:
+	make -C zynq_bsp
+
+all: lib $(MAIN) $(MAIN_BIN) $(MAIN_IMG) $(MAIN_SV)
+	@echo "Zero stage bootloader has been compiled!"
 
 # DO NOT DELETE THIS LINE -- make depend needs it

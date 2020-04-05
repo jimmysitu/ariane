@@ -1343,10 +1343,10 @@ s32 XSdPs_ReadPolled(XSdPs *InstancePtr, u32 Arg, u32 BlkCnt, u8 *Buff)
 	}
 
 	XSdPs_SetupADMA2DescTbl(InstancePtr, BlkCnt, Buff);
-	if (InstancePtr->Config.IsCacheCoherent == 0) {
-		Xil_DCacheInvalidateRange((INTPTR)Buff,
-			BlkCnt * XSDPS_BLK_SIZE_512_MASK);
-	}
+//	if (InstancePtr->Config.IsCacheCoherent == 0) {
+//		Xil_DCacheInvalidateRange((INTPTR)Buff,
+//			BlkCnt * XSDPS_BLK_SIZE_512_MASK);
+//	}
 
 	if (BlkCnt == 1U) {
 		TransferMode = XSDPS_TM_BLK_CNT_EN_MASK |
@@ -1446,10 +1446,10 @@ s32 XSdPs_WritePolled(XSdPs *InstancePtr, u32 Arg, u32 BlkCnt, const u8 *Buff)
 	}
 
 	XSdPs_SetupADMA2DescTbl(InstancePtr, BlkCnt, Buff);
-	if (InstancePtr->Config.IsCacheCoherent == 0) {
-		Xil_DCacheFlushRange((INTPTR)Buff,
-			BlkCnt * XSDPS_BLK_SIZE_512_MASK);
-	}
+//	if (InstancePtr->Config.IsCacheCoherent == 0) {
+//		Xil_DCacheFlushRange((INTPTR)Buff,
+//			BlkCnt * XSDPS_BLK_SIZE_512_MASK);
+//	}
 
 	if (BlkCnt == 1U) {
 		TransferMode = XSDPS_TM_BLK_CNT_EN_MASK | XSDPS_TM_DMA_EN_MASK;
@@ -1608,10 +1608,10 @@ void XSdPs_SetupADMA2DescTbl(XSdPs *InstancePtr, u32 BlkCnt, const u8 *Buff)
 	XSdPs_WriteReg(InstancePtr->Config.BaseAddress, XSDPS_ADMA_SAR_OFFSET,
 			(u32)(UINTPTR)&(InstancePtr->Adma2_DescrTbl[0]));
 
-	if (InstancePtr->Config.IsCacheCoherent == 0) {
-		Xil_DCacheFlushRange((INTPTR)&(InstancePtr->Adma2_DescrTbl[0]),
-			sizeof(XSdPs_Adma2Descriptor) * 32U);
-	}
+//	if (InstancePtr->Config.IsCacheCoherent == 0) {
+//		Xil_DCacheFlushRange((INTPTR)&(InstancePtr->Adma2_DescrTbl[0]),
+//			sizeof(XSdPs_Adma2Descriptor) * 32U);
+//	}
 }
 
 /*****************************************************************************/
