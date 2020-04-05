@@ -13,6 +13,7 @@ int main(){
     printf("...");
     usleep(1000000);
     printf("...");
+    printf("\n");
 
     int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 2 * 16384);
 
