@@ -64,11 +64,11 @@ extern "C" {
 #include "xil_types.h"
 //#include "xil_printf.h"
 
-#if defined (__MICROBLAZE__)
-#include "mb_interface.h"
-#else
-#include "xpseudo_asm.h"
-#endif
+//#if defined (__MICROBLAZE__)
+//#include "mb_interface.h"
+//#else
+//#include "xpseudo_asm.h"
+//#endif
 
 /************************** Function Prototypes ******************************/
 u16 Xil_EndianSwap16(u16 Data);

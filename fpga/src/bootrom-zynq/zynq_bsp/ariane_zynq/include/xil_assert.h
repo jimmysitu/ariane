@@ -50,6 +50,7 @@
 * ----- ---- -------- -------------------------------------------------------
 * 1.00a hbm  07/14/09 First release
 * 6.0   kvn  05/31/16 Make Xil_AsserWait a global variable
+* 6.0rv jmst 04/05/20 Porting for RISC-V
 * </pre>
 *
 ******************************************************************************/
@@ -58,7 +59,7 @@
 #define XIL_ASSERT_H	/* by using protection macros */
 
 #include "xil_types.h"
-
+#include "../../../src/printf.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -73,9 +74,8 @@ extern "C" {
 #define XIL_ASSERT_OCCURRED 1U
 #define XNULL NULL
 
-extern u32 Xil_AssertStatus;
-extern s32 Xil_AssertWait;
-extern void Xil_Assert(const char8 *File, s32 Line);
+u32 Xil_AssertStatus;
+s32 Xil_AssertWait;
 void XNullHandler(void *NullParameter);
 
 /**
@@ -87,6 +87,11 @@ typedef void (*Xil_AssertCallback) (const char8 *File, s32 Line);
 /***************** Macros (Inline Functions) Definitions *********************/
 
 #ifndef NDEBUG
+
+#define Xil_Assert(File, Line)                 \
+{                                              \
+    printf("Assert: %s, %d\n", File, Line);    \
+}
 
 /*****************************************************************************/
 /**
@@ -134,7 +139,7 @@ typedef void (*Xil_AssertCallback) (const char8 *File, s32 Line);
     } else {                                       \
         Xil_Assert(__FILE__, __LINE__);            \
         Xil_AssertStatus = XIL_ASSERT_OCCURRED;   \
-        return 0;                                  \
+        return XST_FAILURE;                       \
     }                                              \
 }
 
