@@ -25,7 +25,7 @@ int init_sd()
         return -2;
     }
 
-    status = XSdPs_SdCardInitialize(&Ps7_sd_0);
+    status = XSdPs_CardInitialize(&Ps7_sd_0);
     if (status != XST_SUCCESS) {
         printf("SD0 card initialization failed, status: %d\n", status);
         return -3;
