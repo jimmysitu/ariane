@@ -17,6 +17,7 @@ OBJS_S = $(SRCS_ASM:.S=.o)
 LIBS = zynq_bsp/ariane_zynq/lib/libxil.a
 
 MAIN = bootrom.elf
+MAIN_DBG = bootrom_dbg.elf
 MAIN_BIN = $(MAIN:.elf=.bin)
 MAIN_IMG = $(MAIN:.elf=.img)
 MAIN_SV = $(MAIN:.elf=.sv)
@@ -25,9 +26,15 @@ MAIN_SV = $(MAIN:.elf=.sv)
 
 default: all
 
+debug: $(MAIN_DBG)
+
+$(MAIN_DBG): ariane.dtb $(OBJS_C) $(OBJS_S) linker_dbg.lds
+	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) -Tlinker_dbg.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
+	@echo "LD    >= $@"
+
 $(MAIN): ariane.dtb $(OBJS_C) $(OBJS_S) linker.lds
-	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) -Tlinker.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $(MAIN)
-	@echo "LD    >= $(MAIN)"
+	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) -Tlinker.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
+	@echo "LD    >= $@"
 
 %.img: %.bin
 	dd if=$< of=$@ bs=128

@@ -30,7 +30,7 @@ $(PROCESSOR)/lib/libxil.a: $(PROCESSOR)/lib/libxil_init.a
 	$(MAKE) -C $(subst /make.include,,$@) -s include  \
 		"SHELL=$(SHELL)" "COMPILER=riscv64-unknown-elf-gcc" \
 		"ARCHIVER=riscv64-unknown-elf-ar" \
-		"COMPILER_FLAGS=  -O2 -c -march=rv64imac -mabi=lp64 -Wall -mcmodel=medany -mexplicit-relocs" \
+		"COMPILER_FLAGS= -O0 -c -march=rv64imac -mabi=lp64 -Wall -mcmodel=medany -mexplicit-relocs" \
 		"EXTRA_COMPILER_FLAGS=-nostdlib -nodefaultlibs -nostartfiles -ggdb -Wall -Wextra"
 
 %/make.libs: include release_dir
@@ -38,8 +38,8 @@ $(PROCESSOR)/lib/libxil.a: $(PROCESSOR)/lib/libxil_init.a
 	$(MAKE) -C $(subst /make.libs,,$@) -s libs \
 		"SHELL=$(SHELL)" "COMPILER=riscv64-unknown-elf-gcc" \
 		"ARCHIVER=riscv64-unknown-elf-ar" \
-		"COMPILER_FLAGS=  -O2 -c -march=rv64imac -mabi=lp64 -Wall -mcmodel=medany -mexplicit-relocs" \
-		"EXTRA_COMPILER_FLAGS=-Wall -Wextra"
+		"COMPILER_FLAGS=  -O0 -c -march=rv64imac -mabi=lp64 -Wall -mcmodel=medany -mexplicit-relocs" \
+		"EXTRA_COMPILER_FLAGS=-ggdb -Wall -Wextra"
 
 %/make.clean:
 	$(MAKE) -C $(subst /make.clean,,$@) -s clean
