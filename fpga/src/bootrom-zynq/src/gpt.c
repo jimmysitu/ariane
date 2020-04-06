@@ -28,16 +28,16 @@ int gpt_find_boot_partition(uint8_t* dest, uint32_t size)
     gpt_pth_t *lba1 = (gpt_pth_t *)lba1_buf;
 
     printf("GPT partition table header:\n");
-    printf("\tsignature:    %x\n", lba1->signature);
-    printf("\trevision:     %d\n", lba1->revision);
-    printf("\tsize:         %d\n", lba1->header_size);
-    printf("\tcrc_header:   %d\n", lba1->crc_header);
-    printf("\treserved:     %d\n", lba1->reserved);
-    printf("\tcurrent lba:  %016x\n", lba1->current_lba);
-    printf("\tbackup lda:   %016x\n", lba1->backup_lba);
-    printf("\tpartition entries lba:    %016x\n", lba1->partition_entries_lba);
-    printf("\tnumber partition entries: %d\n", lba1->nr_partition_entries);
-    printf("\tsize partition entries:   %d\n", lba1->size_partition_entry);
+    printf("\tsignature:    %016X\n", lba1->signature);
+    printf("\trevision:     %08X\n", lba1->revision);
+    printf("\tsize:         %08X\n", lba1->header_size);
+    printf("\tcrc_header:   %08X\n", lba1->crc_header);
+    printf("\treserved:     %08X\n", lba1->reserved);
+    printf("\tcurrent lba:  %016X\n", lba1->current_lba);
+    printf("\tbackup lda:   %016X\n", lba1->backup_lba);
+    printf("\tpartition entries lba:    %016X\n", lba1->partition_entries_lba);
+    printf("\tnumber partition entries: %8X\n", lba1->nr_partition_entries);
+    printf("\tsize partition entries:   %8X\n", lba1->size_partition_entry);
 
     // load LBA2
     uint8_t lba2_buf[block_size];
@@ -54,18 +54,18 @@ int gpt_find_boot_partition(uint8_t* dest, uint32_t size)
         printf("GPT partition entry %d", i);
         printf("\n\tpartition type guid:    ");
         for (int j = 0; j < 16; j++)
-            printf("%02x", part_entry->partition_type_guid[j]);
+            printf("%02X", part_entry->partition_type_guid[j]);
 
         printf("\n\tpartition guid:         ");
         for (int j = 0; j < 16; j++)
-            printf("%02x", part_entry->partition_guid[j]);
+            printf("%02X", part_entry->partition_guid[j]);
 
-        printf("\n\tfirst lba:    %016x", part_entry->first_lba);
-        printf("\n\tlast lba:     %016x", part_entry->last_lba);
-        printf("\n\tattributes:   %016x", part_entry->attributes);
+        printf("\n\tfirst lba:    %016X", part_entry->first_lba);
+        printf("\n\tlast lba:     %016X", part_entry->last_lba);
+        printf("\n\tattributes:   %016X", part_entry->attributes);
         printf("\n\tname:         ");
         for (int j = 0; j < 72; j++)
-            printf("%02x", part_entry->name[j]);
+            printf("%02X", part_entry->name[j]);
         printf("\n");
     }
 

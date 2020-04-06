@@ -12,17 +12,14 @@ uint64_t mtime_read(void)
 
 void usleep(uint64_t us){
 
-    uint64_t start_mtime, delta_mtime;
+    uint64_t cur_mtime, end_mtime;
 
-    // Don't start measuruing until we see an mtime tick
-    uint64_t tmp = mtime_read();
+    cur_mtime = mtime_read();
+    end_mtime = cur_mtime + us * (PLATFORM_FREQ/(2U*1000000U));
     do{
-        start_mtime = mtime_read();
-    }while(start_mtime == tmp);
+        cur_mtime = mtime_read();
+    }while(cur_mtime < end_mtime);
 
-    do{
-        delta_mtime = mtime_read() - start_mtime;
-    }while(delta_mtime < (us*(PLATFORM_FREQ/1000000)));
-
+    return;
 }
 

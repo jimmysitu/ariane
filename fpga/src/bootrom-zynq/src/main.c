@@ -8,12 +8,11 @@
 int main(){
     init_uart(PLATFORM_FREQ, 115200);
     printf("Ariane ZYNQ Zero Stage Bootloader\n");
-
-    usleep(1000000);
-    printf("...");
-    usleep(1000000);
-    printf("...");
-    printf("\n");
+    
+    for (int i =0; i < 10; i++){
+        usleep(1000000);    // 1 second
+        printf(".\n");
+    }
 
     int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 2 * 16384);
 
