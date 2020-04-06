@@ -270,17 +270,17 @@ s32 XSdPs_CfgInitialize(XSdPs *InstancePtr, XSdPs_Config *ConfigPtr,
 			XSDPS_POWER_CTRL_OFFSET,
 			PowerLevel | XSDPS_PC_BUS_PWR_MASK);
 
-//#ifdef __aarch64__
-	/* Enable ADMA2 in 64bit mode. */
+#ifdef __aarch64__
+    /* Enable ADMA2 in 64bit mode. */
+    XSdPs_WriteReg8(InstancePtr->Config.BaseAddress,
+  		XSDPS_HOST_CTRL1_OFFSET,
+  		XSDPS_HC_DMA_ADMA2_64_MASK);
+#else
+	/* Enable ADMA2 in 32bit mode. */
 	XSdPs_WriteReg8(InstancePtr->Config.BaseAddress,
 			XSDPS_HOST_CTRL1_OFFSET,
-			XSDPS_HC_DMA_ADMA2_64_MASK);
-//#else
-//	/* Enable ADMA2 in 32bit mode. */
-//	XSdPs_WriteReg8(InstancePtr->Config.BaseAddress,
-//			XSDPS_HOST_CTRL1_OFFSET,
-//			XSDPS_HC_DMA_ADMA2_32_MASK);
-//#endif
+			XSDPS_HC_DMA_ADMA2_32_MASK);
+#endif
 
 	/* Enable all interrupt status except card interrupt initially */
 	XSdPs_WriteReg16(InstancePtr->Config.BaseAddress,
