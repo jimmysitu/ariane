@@ -2,6 +2,8 @@ ENTRY(main)
 
 SECTIONS
 {
+    
+    _STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 2K;
     ROM_BASE = 0x10000; /* ... but actually position independent */
 
     . = ROM_BASE;
@@ -37,4 +39,12 @@ SECTIONS
         *(.rodata*)
     _RODATA_END_ = .;
     }
+
+    .stack : ALIGN(0x100) {
+    _STACK_END = .;
+        PROVIDE( __stack = . );
+        . += _STACK_SIZE;
+    _STACK_START = .;
+    }
+
 }

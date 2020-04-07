@@ -9,7 +9,7 @@ int main(){
     init_uart(PLATFORM_FREQ, 115200);
     printf("Ariane ZYNQ Zero Stage Bootloader\n");
     
-    for (int i =0; i < 10; i++){
+    for (int i =0; i < 5; i++){
         usleep(1000000);    // 1 second
         printf(".\n");
     }

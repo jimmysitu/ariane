@@ -9,7 +9,7 @@
   .globl _prog_start
 _prog_start:
   smp_pause(s1, s2)
-  li sp, (DRAM_BASE + DRAM_SIZE)
+  la sp, __stack
   call main
   smp_resume(s1, s2)
   csrr a0, mhartid
