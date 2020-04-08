@@ -1,24 +1,39 @@
-ENTRY(main)
+ENTRY(_prog_start)
 
+MEMORY
+{
+    ROM     (rx) : ORIGIN = 0x00010000, LENGTH = 0x1000
+ 　 CLINT   (rw) : ORIGIN = 0x02000000, LENGTH = 0xC0000
+    UART    (rw) : ORIGIN = 0xC0000000, LENGTH = 0x1000
+    DRAM    (rwx): ORIGIN = 0x10000000, LENGTH = 0x30000000
+}
 SECTIONS
 {
     _STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 2K;
-    DRAM_BASE = 0x20000000; /* DRAM_BASE for debug */
-    . = DRAM_BASE;
 
-    .text.init : { *(.text.init) }
+    .text.init : {
+        *(.text.init)
+    } > DRAM
 
     .text : ALIGN(0x100) {
     _TEXT_START_ = .;
         *(.text)
     _TEXT_END_ = .;
-    }
+    } > DRAM
+
+    .rodata : ALIGN(0x100) {
+    _RODATA_START_ = .;
+        *(.rodata)
+        *(.dtb*)
+        *(.rodata*)
+    _RODATA_END_ = .;
+    } > DRAM
 
     .data : ALIGN(0x100) {
     _DATA_START_ = .;
         *(.data)
     _DATA_END_ = .;
-    }
+    } > DRAM
 
     PROVIDE(_data = ADDR(.data));
     PROVIDE(_data_lma = LOADADDR(.data));
@@ -28,21 +43,16 @@ SECTIONS
     _BSS_START_ = .;
         *(.bss)
     _BSS_END_ = .;
-    }
+    } > DRAM
 
-    .rodata : ALIGN(0x100) {
-    _RODATA_START_ = .;
-        *(.rodata)
-        *(.dtb*)
-        *(.rodata*)
-    _RODATA_END_ = .;
-    }
+    .heap : ALIGN(0x100) {
+    _HEAP_START = .;
+        *(.heap*)
+     _HEAP_END = .;
+    } > DRAM
 
-    .stack : ALIGN(0x100) {
-    _STACK_END = .;
-        PROVIDE( __stack = . );
-        . += _STACK_SIZE;
-    _STACK_START = .;
-    }
+    __StackTop = ORIGIN(DRAM) + LENGTH(DRAM) - 0x100;
+    __StackLimit = __StackTop - 2k;
+    PROVIDE(__stack = __StackTop);
 
 }
