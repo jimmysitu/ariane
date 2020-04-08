@@ -2,7 +2,13 @@ CROSSCOMPILE ?= riscv64-unknown-elf-
 CC = ${CROSSCOMPILE}gcc
 PYTHON=python
 
-CFLAGS = -O0 -ggdb -march=rv64imac -mabi=lp64 -Wall -mcmodel=medany -mexplicit-relocs
+CFLAGS = -O0 -ggdb -march=rv64imac -mabi=lp64 -mcmodel=medany -mexplicit-relocs \
+		 -Wstack-usage=0x800 -Wall
+
+CFLAGS_DBG = \
+		 -fstack-usage \
+		 -Wstack-usage=0x800 -Wall \
+
 CCASFLAGS = -mcmodel=medany -mexplicit-relocs
 LDFLAGS = -nostdlib -nodefaultlibs -nostartfiles
 
@@ -29,11 +35,13 @@ default: all
 debug: $(MAIN_DBG)
 
 $(MAIN_DBG): ariane.dtb $(OBJS_C) $(OBJS_S) linker_dbg.lds
-	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) -Tlinker_dbg.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
+	$(CC) $(CFLAGS) $(CFLAGS_DBG) $(LDFLAGS) $(INCLUDES) $(DEFINES) \
+		-Tlinker_dbg.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
 	@echo "LD    >= $@"
 
 $(MAIN): ariane.dtb $(OBJS_C) $(OBJS_S) linker.lds
-	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) -Tlinker.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) \
+		-Tlinker.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
 	@echo "LD    >= $@"
 
 %.img: %.bin

@@ -3,10 +3,12 @@ ENTRY(_prog_start)
 MEMORY
 {
     ROM     (rx) : ORIGIN = 0x00010000, LENGTH = 0x1000
- 　 CLINT   (rw) : ORIGIN = 0x02000000, LENGTH = 0xC0000
+    CLINT   (rw) : ORIGIN = 0x02000000, LENGTH = 0xC0000
     UART    (rw) : ORIGIN = 0xC0000000, LENGTH = 0x1000
-    DRAM    (rwx): ORIGIN = 0x10000000, LENGTH = 0x30000000
+    /* Change DRAM base for debug */
+    DRAM    (rwx): ORIGIN = 0x20000000, LENGTH = 0x20000000
 }
+
 SECTIONS
 {
     _STACK_SIZE = DEFINED(_STACK_SIZE) ? _STACK_SIZE : 2K;
@@ -51,8 +53,15 @@ SECTIONS
      _HEAP_END = .;
     } > DRAM
 
-    __StackTop = ORIGIN(DRAM) + LENGTH(DRAM) - 0x100;
-    __StackLimit = __StackTop - 2k;
-    PROVIDE(__stack = __StackTop);
+    .stack ORIGIN(DRAM) + LENGTH(DRAM) - _STACK_SIZE : {
+    _STACK_TOP = .;
+        . += _STACK_SIZE;
+        PROVIDE(__stack = .);
+    _STACK_BOT = .;
+    }
+
+    . = ALIGN(8);
+    PROVIDE( _end = . );
+    PROVIDE( end = . );
 
 }
