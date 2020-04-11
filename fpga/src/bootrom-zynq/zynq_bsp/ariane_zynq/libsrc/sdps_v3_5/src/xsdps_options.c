@@ -209,9 +209,13 @@ s32 XSdPs_Get_BusWidth(XSdPs *InstancePtr, u8 *SCR)
 
 	TransferMode = 	XSDPS_TM_DAT_DIR_SEL_MASK | XSDPS_TM_DMA_EN_MASK;
 
-//	if (InstancePtr->Config.IsCacheCoherent == 0) {
-//		Xil_DCacheInvalidateRange((INTPTR)SCR, 8);
-//	}
+#ifdef __riscv
+        __asm__ volatile("fence");
+#else
+	if (InstancePtr->Config.IsCacheCoherent == 0) {
+		Xil_DCacheInvalidateRange((INTPTR)SCR, 8);
+	}
+#endif
 
 	Status = XSdPs_CmdTransfer(InstancePtr, ACMD51, 0U, BlkCnt);
 	if (Status != XST_SUCCESS) {
@@ -431,9 +435,13 @@ s32 XSdPs_Get_BusSpeed(XSdPs *InstancePtr, u8 *ReadBuff)
 
 	Arg = XSDPS_SWITCH_CMD_HS_GET;
 
-//	if (InstancePtr->Config.IsCacheCoherent == 0) {
-//		Xil_DCacheInvalidateRange((INTPTR)ReadBuff, 64);
-//	}
+#ifdef __riscv
+        __asm__ volatile("fence");
+#else
+	if (InstancePtr->Config.IsCacheCoherent == 0) {
+		Xil_DCacheInvalidateRange((INTPTR)ReadBuff, 64);
+	}
+#endif
 
 	Status = XSdPs_CmdTransfer(InstancePtr, CMD6, Arg, 1U);
 	if (Status != XST_SUCCESS) {
@@ -509,9 +517,13 @@ s32 XSdPs_Change_BusSpeed(XSdPs *InstancePtr)
 
 		XSdPs_SetupADMA2DescTbl(InstancePtr, BlkCnt, ReadBuff);
 
-//		if (InstancePtr->Config.IsCacheCoherent == 0) {
-//			Xil_DCacheFlushRange((INTPTR)ReadBuff, 64);
-//		}
+#ifdef __riscv
+        __asm__ volatile("fence");
+#else
+		if (InstancePtr->Config.IsCacheCoherent == 0) {
+			Xil_DCacheFlushRange((INTPTR)ReadBuff, 64);
+		}
+#endif
 
 		TransferMode = 	XSDPS_TM_DAT_DIR_SEL_MASK | XSDPS_TM_DMA_EN_MASK;
 
@@ -872,9 +884,13 @@ s32 XSdPs_Get_Mmc_ExtCsd(XSdPs *InstancePtr, u8 *ReadBuff)
 
 	XSdPs_SetupADMA2DescTbl(InstancePtr, BlkCnt, ReadBuff);
 
-//	if (InstancePtr->Config.IsCacheCoherent == 0) {
-//		Xil_DCacheInvalidateRange((INTPTR)ReadBuff, 512U);
-//	}
+#ifdef __riscv
+        __asm__ volatile("fence");
+#else
+	if (InstancePtr->Config.IsCacheCoherent == 0) {
+		Xil_DCacheInvalidateRange((INTPTR)ReadBuff, 512U);
+	}
+#endif
 
 	TransferMode = 	XSDPS_TM_DAT_DIR_SEL_MASK | XSDPS_TM_DMA_EN_MASK;
 
@@ -1061,9 +1077,13 @@ s32 XSdPs_Uhs_ModeInit(XSdPs *InstancePtr, u8 Mode)
 
 	XSdPs_SetupADMA2DescTbl(InstancePtr, BlkCnt, ReadBuff);
 
-//	if (InstancePtr->Config.IsCacheCoherent == 0) {
-//		Xil_DCacheFlushRange((INTPTR)ReadBuff, 64);
-//	}
+#ifdef __riscv
+        __asm__ volatile("fence");
+#else
+	if (InstancePtr->Config.IsCacheCoherent == 0) {
+		Xil_DCacheFlushRange((INTPTR)ReadBuff, 64);
+	}
+#endif
 
 	TransferMode = 	XSDPS_TM_DAT_DIR_SEL_MASK | XSDPS_TM_DMA_EN_MASK;
 

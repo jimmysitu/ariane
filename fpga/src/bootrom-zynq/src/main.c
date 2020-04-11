@@ -8,11 +8,12 @@
 int main(){
     init_uart(PLATFORM_FREQ, 115200);
     printf("Ariane ZYNQ Zero Stage Bootloader\n");
-    
-    for (int i =0; i < 5; i++){
+
+    for (int i =0; i < 3; i++){
         usleep(1000000);    // 1 second
-        printf(".\n");
+        printf("...");
     }
+    printf("\n");
 
     int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 2 * 16384);
 
@@ -24,7 +25,7 @@ int main(){
         __asm__ volatile("la a1, _dtb");
         __asm__ volatile("jr s0" );
     }
-    
+
     // Should never be here
     printf("Ariane ZYNQ zero stage boot fail\n");
     while(1){

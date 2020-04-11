@@ -11,5 +11,9 @@
 
 #define MTIME_OFFSET 0xBFF8
 
+// CSRs
+#define CSR_ICACHE 0x700
+#define CSR_DCACHE 0x701
+
 #endif
 

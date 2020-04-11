@@ -9,6 +9,9 @@
   .globl _prog_start
 _prog_start:
   smp_pause(s1, s2)
+//  // Disable cache
+//  csrwi CSR_DCACHE, 0x00;
+//  csrwi CSR_ICACHE, 0x00;
   la sp, __stack
   call main
   smp_resume(s1, s2)

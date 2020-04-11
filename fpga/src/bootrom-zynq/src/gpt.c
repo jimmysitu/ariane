@@ -17,21 +17,8 @@ int gpt_find_boot_partition(uint8_t* dest, uint32_t size)
     size_t block_size = 512;
 
     int res;
-//============
-    volatile uint8_t lbax_buf[block_size];
-    res = sd_copy(lbax_buf, 1, 1);
-    if(res != 0){
-        printf("SD card failed!\n");
-        printf("sd_copy return value: %d\n", res);
-        return -2;
-    }
-    for(int i=0; i<block_size; i=i+4){
-        printf("%02X, %02X, %02X, %02X\n", lbax_buf[i], lbax_buf[i+1], lbax_buf[i+2], lbax_buf[i+3]);
-    }
-//============
- 
     // load LBA1
-    volatile uint8_t lba1_buf[block_size];
+    uint8_t lba1_buf[block_size];
 
     res = sd_copy(lba1_buf, 1, 1);
     if(res != 0){
@@ -42,7 +29,14 @@ int gpt_find_boot_partition(uint8_t* dest, uint32_t size)
     gpt_pth_t *lba1 = (gpt_pth_t *)lba1_buf;
 
     printf("GPT partition table header:\n");
-    printf("\tsignature:    %016llX\n", lba1->signature);
+
+    printf("\tsignature:    ");
+    uint8_t *sign = &(lba1->signature);
+    for(int i=0; i<8; i++){
+        printf("%c", sign[i]);
+    }
+    printf("\n");
+
     printf("\trevision:     %08X\n", lba1->revision);
     printf("\tsize:         %08X\n", lba1->header_size);
     printf("\tcrc_header:   %08X\n", lba1->crc_header);

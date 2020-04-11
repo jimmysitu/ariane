@@ -2,10 +2,10 @@ ENTRY(_prog_start)
 
 MEMORY
 {
-    ROM     (rx) : ORIGIN = 0x00010000, LENGTH = 0x1000
+    ROM     (rx) : ORIGIN = 0x00010000, LENGTH = 0x10000
     CLINT   (rw) : ORIGIN = 0x02000000, LENGTH = 0xC0000
     UART    (rw) : ORIGIN = 0xC0000000, LENGTH = 0x1000
-    /* Change DRAM base for debug */
+    /* DRAM 0x10000000 is reserved for FSBL loading */
     DRAM    (rwx): ORIGIN = 0x20000000, LENGTH = 0x20000000
 }
 
