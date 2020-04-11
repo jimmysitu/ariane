@@ -211,6 +211,10 @@ s32 XSdPs_Get_BusWidth(XSdPs *InstancePtr, u8 *SCR)
 
 #ifdef __riscv
         __asm__ volatile("fence");
+        // Since cache system in Ariane will not invalid cache lines but only empty the wrtie buffer
+        // Disable & enable D$ instead
+        __asm__ volatile("csrwi 0x701, 0x00");
+        __asm__ volatile("csrwi 0x701, 0x01");
 #else
 	if (InstancePtr->Config.IsCacheCoherent == 0) {
 		Xil_DCacheInvalidateRange((INTPTR)SCR, 8);
@@ -437,6 +441,10 @@ s32 XSdPs_Get_BusSpeed(XSdPs *InstancePtr, u8 *ReadBuff)
 
 #ifdef __riscv
         __asm__ volatile("fence");
+        // Since cache system in Ariane will not invalid cache lines but only empty the wrtie buffer
+        // Disable & enable D$ instead
+        __asm__ volatile("csrwi 0x701, 0x00");
+        __asm__ volatile("csrwi 0x701, 0x01");
 #else
 	if (InstancePtr->Config.IsCacheCoherent == 0) {
 		Xil_DCacheInvalidateRange((INTPTR)ReadBuff, 64);
@@ -519,6 +527,10 @@ s32 XSdPs_Change_BusSpeed(XSdPs *InstancePtr)
 
 #ifdef __riscv
         __asm__ volatile("fence");
+        // Since cache system in Ariane will not invalid cache lines but only empty the wrtie buffer
+        // Disable & enable D$ instead
+        __asm__ volatile("csrwi 0x701, 0x00");
+        __asm__ volatile("csrwi 0x701, 0x01");
 #else
 		if (InstancePtr->Config.IsCacheCoherent == 0) {
 			Xil_DCacheFlushRange((INTPTR)ReadBuff, 64);
@@ -886,6 +898,10 @@ s32 XSdPs_Get_Mmc_ExtCsd(XSdPs *InstancePtr, u8 *ReadBuff)
 
 #ifdef __riscv
         __asm__ volatile("fence");
+        // Since cache system in Ariane will not invalid cache lines but only empty the wrtie buffer
+        // Disable & enable D$ instead
+        __asm__ volatile("csrwi 0x701, 0x00");
+        __asm__ volatile("csrwi 0x701, 0x01");
 #else
 	if (InstancePtr->Config.IsCacheCoherent == 0) {
 		Xil_DCacheInvalidateRange((INTPTR)ReadBuff, 512U);
@@ -1079,6 +1095,10 @@ s32 XSdPs_Uhs_ModeInit(XSdPs *InstancePtr, u8 Mode)
 
 #ifdef __riscv
         __asm__ volatile("fence");
+        // Since cache system in Ariane will not invalid cache lines but only empty the wrtie buffer
+        // Disable & enable D$ instead
+        __asm__ volatile("csrwi 0x701, 0x00");
+        __asm__ volatile("csrwi 0x701, 0x01");
 #else
 	if (InstancePtr->Config.IsCacheCoherent == 0) {
 		Xil_DCacheFlushRange((INTPTR)ReadBuff, 64);

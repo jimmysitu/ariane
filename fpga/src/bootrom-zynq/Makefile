@@ -32,14 +32,12 @@ MAIN_SV = $(MAIN:.elf=.sv)
 
 default: all
 
-debug: $(MAIN_DBG)
-
 $(MAIN_DBG): ariane.dtb $(OBJS_C) $(OBJS_S) linker_dbg.lds
 	$(CC) $(CFLAGS) $(CFLAGS_DBG) $(LDFLAGS) $(INCLUDES) $(DEFINES) \
 		-Tlinker_dbg.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
 	@echo "LD    >= $@"
 
-$(MAIN): ariane.dtb $(OBJS_C) $(OBJS_S) linker.lds
+$(MAIN): ariane.dtb $(OBJS_C) $(OBJS_S) linker.lds $(LIBS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) \
 		-Tlinker.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
 	@echo "LD    >= $@"
@@ -74,5 +72,7 @@ lib:
 
 all: lib $(MAIN) $(MAIN_BIN) $(MAIN_IMG) $(MAIN_SV)
 	@echo "Zero stage bootloader has been compiled!"
+
+debug: lib $(MAIN_DBG)
 
 # DO NOT DELETE THIS LINE -- make depend needs it

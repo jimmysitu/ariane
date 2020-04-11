@@ -1345,6 +1345,10 @@ s32 XSdPs_ReadPolled(XSdPs *InstancePtr, u32 Arg, u32 BlkCnt, u8 *Buff)
 	XSdPs_SetupADMA2DescTbl(InstancePtr, BlkCnt, Buff);
 #ifdef __riscv
         __asm__ volatile("fence");
+        // Since cache system in Ariane will not invalid cache lines but only empty the wrtie buffer
+        // Disable & enable D$ instead
+        __asm__ volatile("csrwi 0x701, 0x00");
+        __asm__ volatile("csrwi 0x701, 0x01");
 #else
 	if (InstancePtr->Config.IsCacheCoherent == 0) {
 		Xil_DCacheInvalidateRange((INTPTR)Buff,
@@ -1452,6 +1456,10 @@ s32 XSdPs_WritePolled(XSdPs *InstancePtr, u32 Arg, u32 BlkCnt, const u8 *Buff)
 	XSdPs_SetupADMA2DescTbl(InstancePtr, BlkCnt, Buff);
 #ifdef __riscv
         __asm__ volatile("fence");
+        // Since cache system in Ariane will not invalid cache lines but only empty the wrtie buffer
+        // Disable & enable D$ instead
+        __asm__ volatile("csrwi 0x701, 0x00");
+        __asm__ volatile("csrwi 0x701, 0x01");
 #else
 	if (InstancePtr->Config.IsCacheCoherent == 0) {
 		Xil_DCacheFlushRange((INTPTR)Buff,
@@ -1618,6 +1626,10 @@ void XSdPs_SetupADMA2DescTbl(XSdPs *InstancePtr, u32 BlkCnt, const u8 *Buff)
 
 #ifdef __riscv
         __asm__ volatile("fence");
+        // Since cache system in Ariane will not invalid cache lines but only empty the wrtie buffer
+        // Disable & enable D$ instead
+        __asm__ volatile("csrwi 0x701, 0x00");
+        __asm__ volatile("csrwi 0x701, 0x01");
 #else
 	if (InstancePtr->Config.IsCacheCoherent == 0) {
 		Xil_DCacheFlushRange((INTPTR)&(InstancePtr->Adma2_DescrTbl[0]),
