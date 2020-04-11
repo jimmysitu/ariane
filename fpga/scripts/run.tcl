@@ -67,6 +67,35 @@ add_files -fileset constrs_1 -norecurse constraints/$project.xdc
 
 synth_design -rtl -name rtl_1
 
+regexp -- {Vivado v([0-9]{4})\.[0-9]} [version] -> year
+# Create 'synth_1' run (if not found)
+if {[string equal [get_runs -quiet synth_1] ""]} {
+    create_run -name synth_1 -part $::env(XILINX_PART) \
+    -flow {Vivado Synthesis $year} \
+    -strategy "Vivado Synthesis Defaults" -constrset constrs_1
+} else {
+    set_property flow "Vivado Synthesis $year" [get_runs synth_1]
+    set_property strategy "Vivado Synthesis Defaults" [get_runs synth_1]
+}
+
+
+# set the current synth run
+current_run -synthesis [get_runs synth_1]
+
+# Create 'impl_1' run (if not found)
+if {[string equal [get_runs -quiet impl_1] ""]} {
+    create_run -name impl_1 -part $::env{XILINX_PART} \
+        -flow {Vivado Implementation $year} \
+        -strategy "Vivado Implementation Defaults" \
+        -parent_run synth_1
+} else {
+    set_property flow "Vivado Implementation $year" [get_runs impl_1]
+    set_property strategy "Vivado Implementation Defaults" [get_runs impl_1]
+}
+# set the current impl run
+current_run -implementation [get_runs impl_1]
+
+# set synthesis options
 set_property STEPS.SYNTH_DESIGN.ARGS.RETIMING true [get_runs synth_1]
 
 launch_runs synth_1
@@ -83,9 +112,9 @@ report_utilization -hierarchical                                        -file re
 report_cdc                                                              -file reports/$project.cdc.rpt
 report_clock_interaction                                                -file reports/$project.clock_interaction.rpt
 
-# set for RuntimeOptimized implementation
-set_property "steps.place_design.args.directive" "RuntimeOptimized" [get_runs impl_1]
-set_property "steps.route_design.args.directive" "RuntimeOptimized" [get_runs impl_1]
+## set for RuntimeOptimized implementation
+#set_property "steps.place_design.args.directive" "RuntimeOptimized" [get_runs impl_1]
+#set_property "steps.route_design.args.directive" "RuntimeOptimized" [get_runs impl_1]
 
 launch_runs impl_1
 wait_on_run impl_1
