@@ -1347,8 +1347,8 @@ s32 XSdPs_ReadPolled(XSdPs *InstancePtr, u32 Arg, u32 BlkCnt, u8 *Buff)
         __asm__ volatile("fence");
         // Since cache system in Ariane will not invalid cache lines but only empty the wrtie buffer
         // Disable & enable D$ instead
-        __asm__ volatile("csrwi 0x701, 0x00");
-        __asm__ volatile("csrwi 0x701, 0x01");
+        __asm__ volatile("csrwi 0x701, 0x00"); // Disable D$
+        __asm__ volatile("csrwi 0x701, 0x01"); // Enable D$
 #else
 	if (InstancePtr->Config.IsCacheCoherent == 0) {
 		Xil_DCacheInvalidateRange((INTPTR)Buff,

@@ -6,14 +6,14 @@
   compatible = "eth,ariane-bare-dev";
   model = "eth,ariane-bare";
   chosen {
-    stdout-path = "/soc/uart@10000000:115200";
+    stdout-path = "/soc/uart@c0000000:115200";
   };
   cpus {
     #address-cells = <1>;
     #size-cells = <0>;
     timebase-frequency = <15000000>; // 15 MHz
     CPU0: cpu@0 {
-      clock-frequency = <50000000>; // 50 MHz
+      clock-frequency = <40000000>; // 50 MHz
       device_type = "cpu";
       reg = <0>;
       status = "okay";
@@ -21,7 +21,7 @@
       riscv,isa = "rv64imafdc";
       mmu-type = "riscv,sv39";
       tlb-split;
-      // HLIC - hart local interrupt controller
+
       CPU0_intc: interrupt-controller {
         #interrupt-cells = <1>;
         interrupt-controller;
@@ -29,9 +29,9 @@
       };
     };
   };
-  memory@80000000 {
+  memory@10000000 {
     device_type = "memory";
-    reg = <0x0 0x80000000 0x0 0x40000000>;
+    reg = <0x0 0x10000000 0x0 0x30000000>;
   };
   leds {
     compatible = "gpio-leds";
@@ -41,7 +41,7 @@
       retain-state-suspended;
     };
   };
-  L26: soc {
+  SOC0: soc {
     #address-cells = <2>;
     #size-cells = <2>;
     compatible = "eth,ariane-bare-soc", "simple-bus";
@@ -68,28 +68,33 @@
       reg = <0x0 0x0 0x0 0x1000>;
       reg-names = "control";
     };
-    uart@10000000 {
+    uart@c0000000 {
       compatible = "ns16750";
-      reg = <0x0 0x10000000 0x0 0x1000>;
-      clock-frequency = <50000000>;
+      reg = <0x0 0xc0000000 0x0 0x1000>;
+      clock-frequency = <40000000>;
       current-speed = <115200>;
       interrupt-parent = <&PLIC0>;
       interrupts = <1>;
       reg-shift = <2>; // regs are spaced on 32 bit boundary
       reg-io-width = <4>; // only 32-bit access are supported
     };
-    xps-spi@20000000 {
-      compatible = "xlnx,xps-spi-2.00.b", "xlnx,xps-spi-2.00.a";
+
+    QSPI: spi@e000d000 {
+      compatible = "xlnx,zynq-qspi-1.0";
       #address-cells = <1>;
       #size-cells = <0>;
+      status = "disabled";
       interrupt-parent = <&PLIC0>;
-      interrupts = < 2 2 >;
-      reg = < 0x0 0x20000000 0x0 0x1000 >;
-      xlnx,family = "kintex7";
-      xlnx,fifo-exist = <0x1>;
-      xlnx,num-ss-bits = <0x1>;
-      xlnx,num-transfer-bits = <0x8>;
-      xlnx,sck-ratio = <0x4>;
+      interrupts = <2>;
+      reg = <0x0 0xe000d000 0x0 0x1000>;
+    };
+
+    SDHCI0: mmc@e0100000 {
+      compatible = "arasan,sdhci-8.9a";
+      status = "disabled";
+      interrupt-parent = <&PLIC0>;
+      interrupts = <7>;
+      reg = <0x0 0xe0100000 0x0 0x1000>;
 
       mmc@0 {
         compatible = "mmc-spi-slot";
@@ -98,29 +103,22 @@
         voltage-ranges = <3300 3300>;
         disable-wp;
       };
+    };
 
-      // mmc-slot@0 {
-      //   compatible = "fsl,mpc8323rdb-mmc-slot", "mmc-spi-slot";
-      //   reg = <0>;  //Chip select 0
-      //   spi-max-frequency = <12500000>;
-      //   voltage-ranges = <3300 3300>;
-      //   //interrupts = < 2 2 >;
-      //   //interrupt-parent = <&PLIC0>;
-      // };
+    GEM0: ethernet@e000b000 {
+      compatible = "cdns,zynq-gem", "cdns,gem";
+      reg = <0x0 0xe000b000 0x0 0x1000>;
+      status = "disabled";
+      interrupts = <3>;
+      #address-cells = <1>;
+      #size-cells = <0>;
     };
-    eth: lowrisc-eth@30000000 {
-      compatible = "lowrisc-eth";
-      device_type = "network";
-      interrupt-parent = <&PLIC0>;
-      interrupts = <3 0>;
-      local-mac-address = [00 18 3e 02 e3 7f]; // This needs to change if more than one GenesysII on a VLAN
-      reg = <0x0 0x30000000 0x0 0x8000>;
-    };
-    xlnx_gpio: gpio@40000000 {
+
+    xlnx_gpio: gpio@c1000000 {
       #gpio-cells = <2>;
       compatible = "xlnx,xps-gpio-1.00.a";
       gpio-controller ;
-      reg = <0x0 0x40000000 0x0 0x10000 >;
+      reg = <0x0 0xc1000000 0x0 0x1000 >;
       xlnx,all-inputs = <0x0>;
       xlnx,all-inputs-2 = <0x0>;
       xlnx,dout-default = <0x0>;

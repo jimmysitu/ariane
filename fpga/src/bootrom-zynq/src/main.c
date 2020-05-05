@@ -15,11 +15,15 @@ int main(){
     }
     printf("\n");
 
-    // Disable & enable cache
-    __asm__ volatile("csrwi 0x701, 0x00");
-    __asm__ volatile("csrwi 0x701, 0x01");
 
-    int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 2 * 16384);
+    int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 0x2000);
+
+    uint8_t* dram = DRAM_BASE;
+    printf("DRAM_BASE:\n");
+    for (int i=0; i < 0x10; i++){
+        printf("%02X ", dram[i]);
+    }
+    printf("\n");
 
     if(res == 0){
         // jump to the address
