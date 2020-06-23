@@ -34,6 +34,8 @@ SECTIONS
     .data : ALIGN(0x100) {
     _DATA_START_ = .;
         *(.data)
+        PROVIDE( __global_pointer$ = . + 0x800 );
+        *(.sdata .sdata.*)
     _DATA_END_ = .;
     } > DRAM
 
@@ -41,11 +43,13 @@ SECTIONS
     PROVIDE(_data_lma = LOADADDR(.data));
     PROVIDE(_edata = .);
 
+    PROVIDE( _bss_start = . );
     .bss : ALIGN(0x100) {
     _BSS_START_ = .;
         *(.bss)
     _BSS_END_ = .;
     } > DRAM
+    PROVIDE( _bss_end = . );
 
     .heap : ALIGN(0x100) {
     _HEAP_START = .;
@@ -56,7 +60,7 @@ SECTIONS
     .stack ORIGIN(DRAM) + LENGTH(DRAM) - _STACK_SIZE : {
     _STACK_TOP = .;
         . += _STACK_SIZE;
-        PROVIDE(__stack = .);
+        PROVIDE(_stack = .);
     _STACK_BOT = .;
     }
 

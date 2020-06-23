@@ -36,12 +36,26 @@ int init_sd()
     return 0;
 }
 
-int sd_copy(void *dst, uint32_t src_lba, uint32_t size)
+// Max block count is between 0x3000-0x4000
+#define MAX_BLKCNT (0x3000)
+int sd_copy(void *dst, uint32_t src_lba, uint32_t blkcnt)
 {
-    int status = XSdPs_ReadPolled(&Ps7_sd_0, src_lba, size, dst);
+    uint8_t *buff = dst;
+    // For unknown reason, XSdPs_ReadPolled fails when blkcnt is to large
+    while(blkcnt > MAX_BLKCNT) {
+        int status = XSdPs_ReadPolled(&Ps7_sd_0, src_lba, MAX_BLKCNT, buff);
+        if(status != XST_SUCCESS){
+            printf("SD0 Read failed, status: %d\n", status);
+            return -1;
+        }
+        blkcnt = blkcnt - MAX_BLKCNT;
+        buff = buff + MAX_BLKCNT * XSDPS_BLK_SIZE_512_MASK;
+    }
+
+    int status = XSdPs_ReadPolled(&Ps7_sd_0, src_lba, blkcnt, buff);
     if(status != XST_SUCCESS){
-        printf("SD0 Read failed, status: %d\n", status);
-        return -1;
+            printf("SD0 Read failed, status: %d\n", status);
+            return -1;
     }
     return 0;
 }

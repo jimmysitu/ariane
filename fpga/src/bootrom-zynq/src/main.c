@@ -16,10 +16,10 @@ int main(){
     printf("\n");
 
 
-    int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 0x2000);
+    int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 0x8000);  // 16MB
 
     uint8_t* dram = DRAM_BASE;
-    printf("DRAM_BASE:\n");
+    printf("DRAM_BASE@0x%llx\n", DRAM_BASE);
     for (int i=0; i < 0x10; i++){
         printf("%02X ", dram[i]);
     }
