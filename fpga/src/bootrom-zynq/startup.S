@@ -37,6 +37,8 @@ _prog_start:
 	addi a0, a0, 4
 	bltu a0, a1, 1b
 2:
+    
+    call __libc_init_array
 
     la sp, _stack
     call main

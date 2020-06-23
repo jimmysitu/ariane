@@ -2,7 +2,9 @@ CROSSCOMPILE ?= riscv64-unknown-elf-
 CC = ${CROSSCOMPILE}gcc
 PYTHON=python
 
-CFLAGS = -O0 -ggdb -march=rv64imac -mabi=lp64 -mcmodel=medany -mexplicit-relocs \
+#CFLAGS = -O0 -ggdb -march=rv64imac -mabi=lp64 -mcmodel=medany -mexplicit-relocs \
+
+CFLAGS = -O0 -ggdb -march=rv64gc -mabi=lp64d -mcmodel=medany -mexplicit-relocs \
 		 -Wstack-usage=0x800 -Wall
 
 CFLAGS_DBG = \
@@ -10,7 +12,8 @@ CFLAGS_DBG = \
 		 -Wstack-usage=0x800 -Wall \
 
 CCASFLAGS = -mcmodel=medany -mexplicit-relocs
-LDFLAGS = -nostdlib -nodefaultlibs -nostartfiles
+#LDFLAGS = -nostdlib -nodefaultlibs -nostartfiles
+LDFLAGS = -Wl,--gc-sections -lm
 
 INCLUDES = -I./ -I./src -I./zynq_bsp/ariane_zynq/include
 DEFINES = -DPRINTF_DISABLE_SUPPORT_EXPONENTIAL \
@@ -33,13 +36,13 @@ MAIN_SV = $(MAIN:.elf=.sv)
 default: all
 
 $(MAIN_DBG): ariane.dtb $(OBJS_C) $(OBJS_S) linker_dbg.lds
-	$(CC) $(CFLAGS) $(CFLAGS_DBG) $(LDFLAGS) $(INCLUDES) $(DEFINES) \
-		-Tlinker_dbg.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
+	$(CC) $(CFLAGS) $(CFLAGS_DBG) $(INCLUDES) $(DEFINES) \
+		-Tlinker_dbg.lds $(LDFLAGS)  $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
 	@echo "LD    >= $@"
 
 $(MAIN): ariane.dtb $(OBJS_C) $(OBJS_S) linker.lds $(LIBS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(DEFINES) \
-		-Tlinker.lds $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
+	$(CC) $(CFLAGS)  $(INCLUDES) $(DEFINES) \
+		-Tlinker.lds $(LDFLAGS) $(OBJS_S) $(OBJS_C) $(LIBS) -o $@
 	@echo "LD    >= $@"
 
 %.img: %.bin
