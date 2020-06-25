@@ -12,8 +12,8 @@ CFLAGS_DBG = \
 		 -Wstack-usage=0x800 -Wall \
 
 CCASFLAGS = -mcmodel=medany -mexplicit-relocs
-#LDFLAGS = -nostdlib -nodefaultlibs -nostartfiles
-LDFLAGS = -Wl,--gc-sections -lm
+LDFLAGS = -nostdlib -nodefaultlibs -nostartfiles \
+            -Wl,--gc-sections -lm
 
 INCLUDES = -I./ -I./src -I./zynq_bsp/ariane_zynq/include
 DEFINES = -DPRINTF_DISABLE_SUPPORT_EXPONENTIAL \

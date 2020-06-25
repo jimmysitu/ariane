@@ -38,7 +38,7 @@ _prog_start:
 	bltu a0, a1, 1b
 2:
     
-    call __libc_init_array
+//    call __libc_init_array
 
     la sp, _stack
     call main
