@@ -5,16 +5,6 @@
 #include "printf.h"
 #include "gpt.h"
 
-typedef struct {
-    uint32_t pwr;
-    uint32_t temp;
-} ptEntry_t;
-
-ptEntry_t ptTable[3] = {
-    {0x1000, 0x10},
-    {0x2000, 0x20},
-    {0x3000, 0x30},
-};
 
 int main(){
     init_uart(PLATFORM_FREQ, 115200);
@@ -23,7 +13,6 @@ int main(){
     for (int i =0; i < 3; i++){
         usleep(1000000);    // 1 second
         printf("...");
-        printf("%d, %d\n", ptTable[i].pwr, ptTable[i].temp);
     }
     printf("\n");
 
