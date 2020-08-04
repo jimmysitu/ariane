@@ -11,6 +11,11 @@ uint8_t read_reg_u8(uintptr_t addr)
     return *(volatile uint8_t *)addr;
 }
 
+int is_receive_empty()
+{
+    return read_reg_u8(UART_LINE_STATUS) & 0x01;
+}
+
 int is_transmit_empty()
 {
     return read_reg_u8(UART_LINE_STATUS) & 0x20;
@@ -21,6 +26,13 @@ void _putchar(char c)
     while(is_transmit_empty() == 0);
 
     write_reg_u8(UART_THR, c);
+}
+
+void echo()
+{
+    while(is_receive_empty() != 0){
+        write_reg_u8(UART_THR, read_reg_u8(UART_RBR));
+    }
 }
 
 void init_uart(uint32_t freq, uint32_t baud)

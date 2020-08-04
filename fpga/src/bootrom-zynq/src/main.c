@@ -9,22 +9,19 @@
 int main(){
     init_uart(PLATFORM_FREQ, 115200);
     printf("Ariane ZYNQ Zero Stage Bootloader\n");
-
-    for (int i =0; i < 3; i++){
+    
+    // Wait for a while for connection of OpenOCD
+    for (int i =0; i < 5; i++){
         usleep(1000000);    // 1 second
         printf("...");
     }
     printf("\n");
 
 
-    int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 0x8000);  // 16MB
+    int res = gpt_find_boot_partition((uint8_t *)DRAM_BASE, 0x8000);  // 0x8000*0x200 = 16MB
 
     uint8_t* dram = DRAM_BASE;
     printf("DRAM_BASE@0x%llx\n", DRAM_BASE);
-    for (int i=0; i < 0x10; i++){
-        printf("%02X ", dram[i]);
-    }
-    printf("\n");
 
     if(res == 0){
         // jump to the address
@@ -38,6 +35,7 @@ int main(){
     // Should never be here
     printf("Ariane ZYNQ zero stage boot fail\n");
     while(1){
+        echo();
     }
 }
 

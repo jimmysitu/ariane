@@ -16,4 +16,5 @@
 #define UART_DLAB_LSB UART_BASE + 0
 #define UART_DLAB_MSB UART_BASE + 4
 
+void echo();
 void init_uart();
