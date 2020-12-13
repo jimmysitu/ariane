@@ -132,7 +132,7 @@ package ariane_pkg;
     localparam BITS_SATURATION_COUNTER = 2;
     localparam NR_COMMIT_PORTS = 2;
 
-    localparam ENABLE_RENAME = 1'b0;
+    localparam ENABLE_RENAME = 1'b1;
 
     localparam ISSUE_WIDTH = 1;
     // amount of pipeline registers inserted for load/store return path
